@@ -26,6 +26,12 @@ The amount and severity of logging output can be controlled via the system prope
 Most importantly if the algorithm does not behave as expected or you are trying to debug, enable all log messages by appending `-Dtinylog.level=trace` to the `java` invocation.
 If log output is not releveant at all, turn Metanome CLI into quiet mode with `-Dtinylog.level=off`.
 
+### Input key
+Please note that most algorithms require the `input-key` option to be set.
+Each algorithm defines this property individually, so you have to look it up in the source code.
+The value `INPUT_FILES` is commonly used, but not every algorithm uses it.
+The correct value can be found in the `identifier` parameter of the `setRelationalInputConfigurationValue` method of the class that extends the `RelationalInputParameterAlgorithm`.
+ 
 
 ## Contributing
 
