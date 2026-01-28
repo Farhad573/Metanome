@@ -79,13 +79,6 @@ limitations under the License.
                                 <artifactItems>
                                     <artifactItem>
                                         <groupId>de.metanome</groupId>
-                                        <artifactId>frontend</artifactId>
-                                        <version>${project.version}</version>
-                                        <type>war</type>
-                                        <outputDirectory>target/frontend</outputDirectory>
-                                    </artifactItem>
-                                    <artifactItem>
-                                        <groupId>de.metanome</groupId>
                                         <artifactId>backendwar</artifactId>
                                         <version>${project.version}</version>
                                         <type>war</type>
@@ -97,6 +90,29 @@ limitations under the License.
                     </executions>
                 </plugin>
 
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.1</version>
+                    <executions>
+                        <execution>
+                            <id>copy-frontend-react</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.basedir}/target/frontend</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>${project.basedir}/../frontend-react/dist</directory>
+                                        <filtering>false</filtering>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
