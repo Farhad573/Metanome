@@ -402,31 +402,16 @@ limitations under the License.
                 <scope>compile</scope>
             </dependency>
 
-            <!-- javax.xml.bind dependencies (deprecated in jdk 11) -->
+            <!-- javax.xml.bind dependencies (deprecated in jdk 11) not bundled in jdk 11+ anymore, Therefore added manually -->
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>2.2.11</version>
+                <version>2.3.1</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-core</artifactId>
-                <version>2.2.11</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>2.2.11</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>1.1.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-osgi</artifactId>
-                <version>2.2.11</version>
+                <groupId>com.sun.activation</groupId>
+                <artifactId>javax.activation</artifactId>
+                <version>1.2.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

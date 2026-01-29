@@ -41,10 +41,9 @@ limitations under the License.
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <release>21</release>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
                     <compilerArgument>-Xlint:all</compilerArgument>
@@ -106,26 +105,14 @@ limitations under the License.
             <scope>test</scope>
         </dependency>
 
-        <!-- javax.xml.bind dependencies (deprecated in jdk 11) -->
+        <!-- javax.xml.bind dependencies (deprecated in jdk 11) not bundled in jdk 11+ anymore, Therefore added manually -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-osgi</artifactId>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
         </dependency>
     </dependencies>
 
