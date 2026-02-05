@@ -61,6 +61,7 @@ limitations under the License.
         <property name="hbm2ddl.auto">update</property>
 
         <mapping class="de.metanome.backend.results_db.Algorithm"/>
+        <mapping class="de.metanome.backend.results_db.Engine"/>
         <mapping class="de.metanome.backend.results_db.DatabaseConnection"/>
         <mapping class="de.metanome.backend.results_db.Execution"/>
         <mapping class="de.metanome.backend.results_db.FileInput"/>
@@ -69,6 +70,10 @@ limitations under the License.
         <mapping class="de.metanome.backend.results_db.TableInput"/>
         <mapping class="de.metanome.backend.results_db.ResultType"/>
         <mapping class="de.metanome.backend.results_db.ExecutionSetting"/>
+
+        <mapping class="de.metanome.backend.results_db.DpqlExecution"/>
+        <mapping class="de.metanome.backend.results_db.DpqlNormalizedTable"/>
+        <mapping class="de.metanome.backend.results_db.DpqlNormCell"/>
 
 
     </session-factory>
