@@ -51,6 +51,16 @@ limitations under the License.
                 </excludes>
             </fileSet>
 
+        <!-- Work around to include empty directory for engines -->
+
+            <fileSet>
+                <directory>.</directory>
+                <outputDirectory>/backend/WEB-INF/classes/engines</outputDirectory>
+                <excludes>
+                    <exclude>*/**</exclude>
+                </excludes>
+            </fileSet>
+
     <!-- Includes for local standalone installation -->
     <fileSet>
         <directory>${project.basedir}/target/dependency/</directory>
