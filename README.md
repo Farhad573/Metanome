@@ -7,28 +7,19 @@ The [Metanome project](https://hpi.de/naumann/projects/data-profiling-and-analyt
 
 The Metanome tool is supplied under Apache License. You can use and extend the tool to develop your own profiling algorithms. The profiling algorithms, which we provide on our [Algorithm releases page](https://hpi.de/naumann/projects/data-profiling-and-analytics/metanome-data-profiling/algorithms.html) and the [metanome-algorithms](https://github.com/HPI-Information-Systems/metanome-algorithms) repository, have Apache copyright as well.
 
-The Metanome platform itself is a backend service that communicates over an HTTP REST API with a user facing web frontend. This frontend is provided in a seperate [Metanome Frontend](https://github.com/HPI-Information-Systems/Metanome-Frontend) repository. Building the Metanome tool, therefore, requires you to pull the frontend as a submodule (see below).
-
+The Metanome platform itself is a backend service that communicates over an HTTP REST API with a user facing web frontend. This frontend is provided in the frontend-react folder.
 #### Building Metanome Locally
 
 Metanome is a java maven project. So in order to build the sources, the following development tools are needed:
 
-1. Java JDK 1.8 or later
+1. Java JDK 11
 2. Maven 3.1.0
 2. Git
 
 Make sure that all three are on your system's PATH variable when running the build.
 
-Note: The build might have issues with the most recent JDK versions, so we recommend a Java version between 8 and 11.
+Note: The build is configured for Java 11.
 
-##### Pull Metanome Frontend Submodule
-
-Before executing the build you have to clone the Metanome Frontend into the project.
-
-```
-git submodule init
-git submodule update
-```
 
 ##### Build Metanome
 
@@ -36,21 +27,27 @@ Metanome can be build by executing:
 
 ```mvn clean install``` (or for a parallel build ```mvn -T 1C clean install```)
 
-If the frontend build fails due to missing or incompatible Angular packages, it often helps to re-run the build.
+Build the React frontend for production before packaging the deployment bundle:
 
-When the built has finished, Metanome can be packaged together with a Tomcat webserver, some test data, and some test algorithms. 
-To speedup builds this package is not created in the default maven profile. 
-The deployment package can be created by executing the build with the deployment-local profile: 
+```bash
+cd frontend-react
+npm ci
+npm run build
+```
+
+When the built has finished, Metanome can be packaged together with a Tomcat webserver, some test data, and some test algorithms.
+To speedup builds this package is not created in the default maven profile.
+The deployment package can be created by executing the build with the deployment-local profile:
 
 ```mvn verify -P deployment-local```
 
-or by executing package on the deployment project directly: 
+or by executing package on the deployment project directly:
 
 ```mvn -f deployment/pom.xml package```
 
 Note that if metanome has not been installed before creating the package (via mvn clean install), dependencies will be retrieved online, which can result in a deprecated package!
 
-To start the Metanome frontend you then have to execute the following steps in the deployment folder:
+To start the Metanome application you then have to execute the following steps in the deployment folder:
 
 1. Unzip `deployment/target/deployment-1.1-SNAPSHOT-package_with_tomcat.zip`
 2. Go into the unzipped folder and start the run script, either `run.sh` or `run.bat`(Windows Systems)
