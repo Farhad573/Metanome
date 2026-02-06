@@ -21,3 +21,13 @@ metanomedb.script
 config.js
 build.out
 .DS_Store
+io/*
+scripts/*
+.cache
+.vscode/settings.json
+frontend-react/node_modules/*
+frontend-react/dist/
+volumes/
+temp/*
+db_*/
+db/*
