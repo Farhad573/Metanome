@@ -30,12 +30,10 @@ import de.metanome.backend.result_receiver.ResultCounter;
 import de.metanome.backend.result_receiver.ResultPrinter;
 import de.metanome.backend.result_receiver.ResultReceiver;
 import de.metanome.backend.results_db.ExecutionSetting;
+import de.metanome.backend.results_db.EntityStorageException;
 import de.metanome.backend.results_db.FileInput;
 import de.metanome.backend.results_db.HibernateUtil;
 import de.metanome.backend.results_db.Input;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -201,16 +199,26 @@ public class AlgorithmExecution {
     de.metanome.backend.results_db.Algorithm algorithm = algorithmResource.get(algorithmId);
 
     // Get the execution setting from hibernate
-    Session session = HibernateUtil.getSessionFactory().openSession();
-    Criteria cr2 = session.createCriteria(ExecutionSetting.class);
-    cr2.add(Restrictions.eq("executionIdentifier", executionIdentifier));
-    ExecutionSetting executionSetting = (ExecutionSetting) cr2.list().get(0);
+    ExecutionSetting executionSetting;
+    try {
+      List<ExecutionSetting> settings = HibernateUtil.queryCriteria(ExecutionSetting.class,
+        HibernateUtil.eq("executionIdentifier", executionIdentifier));
+      if (settings.isEmpty()) {
+        System.err.println("No ExecutionSetting found for executionIdentifier=" + executionIdentifier);
+        System.exit(1);
+        return;
+      }
+      executionSetting = settings.get(0);
+    } catch (EntityStorageException e) {
+      System.err.println("Failed to load ExecutionSetting for executionIdentifier=" + executionIdentifier);
+      e.printStackTrace();
+      System.exit(1);
+      return;
+    }
 
     // Parse the parameters
     List<ConfigurationValue> parameters = parseConfigurationValues(executionSetting.getParameterValuesJson());
     List<Input> inputs = parseInputs(executionSetting.getInputsJson());
-
-    session.close();
 
     try {
       // Extract column names from the inputs
