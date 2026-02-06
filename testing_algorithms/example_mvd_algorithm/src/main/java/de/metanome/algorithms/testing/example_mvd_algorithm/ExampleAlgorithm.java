@@ -140,7 +140,7 @@ public class ExampleAlgorithm
   }
 
   @Override
-  public void setCheckBoxConfigurationValue(String identifier, String[]... selectedValues)
+  public void setCheckBoxConfigurationValue(String identifier, String[][] selectedValues)
           throws AlgorithmConfigurationException {
     if (!identifier.equals(CHECKBOX_IDENTIFIER)) {
       throw new AlgorithmConfigurationException("Incorrect identifier or value list length.");
