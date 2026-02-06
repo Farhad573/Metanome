@@ -1,6 +1,4 @@
-*       text=auto
-
-*.java  text eol=lf licensefile=.githooks/license-maintainer/LICENSE-javadoc
-*.xml   text eol=lf licensefile=.githooks/license-maintainer/LICENSE-xml
-*.py    text eol=lf licensefile=.githooks/license-maintainer/LICENSE-python
-*.sh    text eol=lf
+*.java    licensefile=.githooks/license-maintainer/LICENSE-javadoc
+*.xml     licensefile=.githooks/license-maintainer/LICENSE-xml
+*.py      licensefile=.githooks/license-maintainer/LICENSE-python
+*.sh      text eol=lf
