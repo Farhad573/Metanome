@@ -33,7 +33,6 @@ import de.metanome.backend.algorithm_execution.ProcessRegistry;
 import de.metanome.backend.configuration.DefaultConfigurationFactory;
 import de.metanome.backend.constants.Constants;
 import de.metanome.backend.helper.DatabaseConnectionGeneratorMixIn;
-import de.metanome.backend.helper.ExecutionResponse;
 import de.metanome.backend.helper.FileInputGeneratorMixIn;
 import de.metanome.backend.helper.RelationalInputGeneratorMixIn;
 import de.metanome.backend.helper.TableInputGeneratorMixIn;
@@ -44,8 +43,7 @@ import de.metanome.backend.results_db.ExecutionSetting;
 import de.metanome.backend.results_db.HibernateUtil;
 import de.metanome.backend.results_db.Input;
 
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Restrictions;
+import de.metanome.backend.results_db.HibernateUtil.PropertyFilter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -152,23 +150,23 @@ public class AlgorithmExecutionResource {
     try {
       // The algorithm execution was successful
       // Get the execution from hibernate
-      ArrayList<Criterion> criteria = new ArrayList<>();
-      criteria.add(Restrictions.eq("identifier", executionIdentifier));
-      criteria.add(Restrictions.eq("running",false));
-      execution = (Execution) HibernateUtil.queryCriteria(Execution.class,
-        criteria.toArray(
-          new Criterion[criteria.size()]))
-        .get(0);
+      ArrayList<PropertyFilter> criteria = new ArrayList<>();
+      criteria.add(HibernateUtil.eq("identifier", executionIdentifier));
+      criteria.add(HibernateUtil.eq("running", false));
+      execution = (Execution) HibernateUtil
+          .queryCriteria(Execution.class, criteria.toArray(new PropertyFilter[criteria.size()]))
+          .get(0);
     } catch (Exception e) {
       // The execution process got killed - execution object is created anyway (with abortion flag set)
 
 
       try {
-        ArrayList<Criterion> criteria = new ArrayList<>();
-        criteria.add(Restrictions.eq("identifier", executionIdentifier));
-        criteria.add(Restrictions.eq("running",true));
-        execution = (Execution) HibernateUtil.queryCriteria(Execution.class,
-                  criteria.toArray(new Criterion[criteria.size()])).get(0);
+        ArrayList<PropertyFilter> criteria = new ArrayList<>();
+        criteria.add(HibernateUtil.eq("identifier", executionIdentifier));
+        criteria.add(HibernateUtil.eq("running", true));
+        execution = (Execution) HibernateUtil
+            .queryCriteria(Execution.class, criteria.toArray(new PropertyFilter[criteria.size()]))
+            .get(0);
 
         execution = execution
                   .setRunning(false)
@@ -201,12 +199,6 @@ public class AlgorithmExecutionResource {
         throw new WebException(message, Response.Status.BAD_REQUEST);
       }
     }
-
-    // Set ExecutionResponse
-    ExecutionResponse executionResponse = new ExecutionResponse()
-            .setAlgorithm(execution.getAlgorithm().getName())
-            .setIdentifier(execution.getIdentifier())
-            .setStarted(execution.getBegin());
 
     return execution;
   }
@@ -263,6 +255,21 @@ public class AlgorithmExecutionResource {
 
     // convert inputs to json strings
     List<String> inputsJson = inputsToJson(inputs);
+
+    // Basic validation: prevent execution without any inputs (common cause of runtime errors)
+    if (inputsJson == null || inputsJson.isEmpty()) {
+      throw new WebException(
+          "No inputs selected for execution. Please select at least one dataset or input.",
+          Response.Status.BAD_REQUEST);
+    }
+
+    // Debug: print a concise summary of settings to server logs for troubleshooting
+    try {
+      System.out
+          .println("Metanome: Building ExecutionSetting for " + params.getExecutionIdentifier()
+              + " | parameters=" + parameterValues.size() + " | inputs=" + inputsJson.size());
+    } catch (Exception ignore) {
+    }
 
     // create a new execution setting object
     executionSetting =
@@ -322,19 +329,23 @@ public class AlgorithmExecutionResource {
       String webinf = file.getAbsoluteFile().getParentFile().getParent() + Constants.FILE_SEPARATOR;
       String classesFolder = webinf + "classes";
       String parentPathWildCard = webinf + "lib" + Constants.FILE_SEPARATOR + "*";
-      myPath += File.pathSeparator + parentPathWildCard + File.pathSeparator + classesFolder;
+      String webAppPath = parentPathWildCard + File.pathSeparator + classesFolder;
+      myPath = webAppPath;
     } catch (URISyntaxException ex) {
       ex.printStackTrace();
     }
-    
+
     ProcessBuilder builder;
+    // Hibernate 4.x uses Javassist which requires module opens on Java 17+
+    // to define proxy classes (ClassLoader#defineClass is in java.lang).
+    String[] addOpens = new String[] {"--add-opens=java.base/java.lang=ALL-UNNAMED",
+        "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED"};
     if (!memory.equals("")) {
-      builder = new ProcessBuilder(
-        javaBin, "-Xmx" + memory + "m", "-Xms" + memory + "m", "-classpath", myPath, className,
-        algorithmId, executionIdentifier);
+      builder = new ProcessBuilder(javaBin, addOpens[0], addOpens[1], "-Xmx" + memory + "m",
+          "-Xms" + memory + "m", "-classpath", myPath, className, algorithmId, executionIdentifier);
     } else {
-      builder = new ProcessBuilder(
-        javaBin, "-classpath", myPath, className, algorithmId, executionIdentifier);
+      builder = new ProcessBuilder(javaBin, addOpens[0], addOpens[1], "-classpath", myPath,
+          className, algorithmId, executionIdentifier);
     }
     builder.redirectErrorStream(true);
 
