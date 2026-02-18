@@ -27,6 +27,12 @@ import de.metanome.backend.results_db.DatabaseConnection;
 import de.metanome.backend.results_db.FileInput;
 import de.metanome.backend.results_db.Input;
 import de.metanome.backend.results_db.TableInput;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class InputToGeneratorConverter {
 
@@ -52,9 +58,14 @@ public class InputToGeneratorConverter {
    * @return the configuration setting
    */
   public static ConfigurationSettingFileInput convertInputToSetting(FileInput input) {
+    String filename = input.getFileName();
+    if (filename == null || filename.trim().isEmpty()){
+      filename = input.getName();
+    } 
+    String normalized = normalizePath(filename);
     return new ConfigurationSettingFileInput()
       .setEscapeChar(input.getEscapeChar())
-      .setFileName(input.getFileName())
+      .setFileName(normalized)
       .setHeader(input.isHasHeader())
       .setIgnoreLeadingWhiteSpace(input.isIgnoreLeadingWhiteSpace())
       .setNullValue(input.getNullValue())
@@ -63,6 +74,84 @@ public class InputToGeneratorConverter {
       .setSkipDifferingLines(input.isSkipDifferingLines())
       .setSkipLines(input.getSkipLines())
       .setStrictQuotes(input.isStrictQuotes());
+  }
+
+  /**
+   * normalize and resolves a potentially non-resolvable file path into an existing absolute path when possible.
+   *
+   * @param path the input path to normalize; may be null
+   * @return a normalized existing absolute path when resolvable, null if input is path null}, otherwise the original path
+   */
+  private static String normalizePath(String path) {
+    if (path == null){
+      return null;
+    } 
+    try {
+      // remove leading slash before drive letter for windows (e.g. /C:/...)
+      if (path.matches("^/[A-Za-z]:.*")) path = path.substring(1);
+
+      // Map /WEB-INF/classes/... to actual classes folder on disk
+      final String classespath = "/WEB-INF/classes/";
+      if (path.contains(classespath)) {
+        String relativepath = path.substring(path.indexOf(classespath) + classespath.length());
+        String classesFolder = resolveClassesFolder();
+        if (classesFolder != null) {
+          File finalpath = new File(classesFolder, relativepath);
+          if (finalpath.exists()) return finalpath.getAbsolutePath();
+        }
+      }
+
+      // If absolute and exists, return
+      Path p = Paths.get(path);
+      if (p.isAbsolute() && Files.exists(p)) return p.toAbsolutePath().toString();
+
+      // relative path to user.dir
+      Path relativepath = Paths.get(System.getProperty("user.dir")).resolve(path).normalize();
+      if (Files.exists(relativepath)) return relativepath.toAbsolutePath().toString();
+
+      // Fallback: search under classes/inputData by file leaf name
+      String classesFolder = resolveClassesFolder();
+      if (classesFolder != null) {
+        Path root = Paths.get(classesFolder, "inputData");
+        if (Files.exists(root)) {
+          final String leaf = new File(path).getName();
+          Path found = Files.walk(root).filter(Files::isRegularFile)
+            .filter(x -> x.getFileName().toString().equalsIgnoreCase(leaf))
+            .findFirst().orElse(null);
+          if (found != null) return found.toAbsolutePath().toString();
+        }
+      }
+
+      // Return original if we couldn't normalize
+      return path;
+    } catch (Exception e) {
+      return path;
+    }
+  }
+
+  /**
+   * resolves the absolute path to the application classes directory (typically {@code WEB-INF/classes})
+   * based on the runtime location of {@link DefaultFileInputGenerator}.
+   *
+   * <p>The method inspects the code source URL of {@code DefaultFileInputGenerator}, converts it to a
+   * {@link java.io.File}, moves two directory levels up (to {@code WEB-INF}), and then appends
+   * {@code "classes"} to build the target path.
+   *
+   * @return the absolute path to the resolved classes folder, or {@code null} if the path cannot be
+   *         resolved (for example, when URI conversion fails or expected parent directories are missing)
+   */
+  private static String resolveClassesFolder() {
+    try {
+      URL baseUrl = DefaultFileInputGenerator.class.getProtectionDomain().getCodeSource().getLocation();
+      File file = new File(baseUrl.toURI());
+      // classes are under .../WEB-INF/classes
+      File webInf = file.getAbsoluteFile().getParentFile().getParentFile();
+      if (webInf != null) {
+        return new File(webInf, "classes").getAbsolutePath();
+      }
+    } catch (URISyntaxException ignored) {
+    }
+    return null;
   }
 
   /**
