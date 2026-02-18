@@ -19,6 +19,7 @@ import de.metanome.algorithm_integration.AlgorithmConfigurationException;
 import de.metanome.algorithm_integration.ColumnIdentifier;
 import de.metanome.algorithm_integration.algorithm_execution.FileGenerator;
 import de.metanome.algorithm_integration.configuration.ConfigurationValue;
+import de.metanome.algorithm_integration.configuration.ConfigurationSettingFileInput;
 import de.metanome.algorithm_integration.input.*;
 import de.metanome.algorithm_integration.results.JsonConverter;
 import de.metanome.backend.constants.Constants;
@@ -56,9 +57,18 @@ public class AlgorithmExecution {
     List<RelationalInputGenerator> inputGenerators = new ArrayList<>();
     for (Input input : inputs) {
       if (input instanceof FileInput) {
-        File currFile = new File(input.getName());
+        // to fix problem of file uploaded inputfiles not having path and just name, get the path from the fileName property of the FileInput
+        FileInput fileInput = (FileInput) input;
+        ConfigurationSettingFileInput setting = InputToGeneratorConverter.convertInputToSetting(fileInput);
+        String inputPath = setting.getFileName();
+        // avoid nullpointer exeption
+        File currFile = new File(inputPath != null ? inputPath : "");
         if (currFile.isFile()) {
-          inputGenerators.add(InputToGeneratorConverter.convertInput(input));
+          try {
+            inputGenerators.add(new DefaultFileInputGenerator(currFile, setting));
+          } catch (FileNotFoundException e) {
+            e.printStackTrace();
+          }
         } else if (currFile.isDirectory()) {
           File[] filesInDirectory = currFile.listFiles(new FilenameFilter() {
             @Override
@@ -73,10 +83,15 @@ public class AlgorithmExecution {
           });
           for (File file : filesInDirectory) {
             try {
-              inputGenerators.add(new DefaultFileInputGenerator(file, InputToGeneratorConverter.convertInputToSetting((FileInput) input)));
+              inputGenerators.add(new DefaultFileInputGenerator(file, setting));
             } catch (FileNotFoundException e) {
               e.printStackTrace();
             }
+          }
+        } else {
+          RelationalInputGenerator relInpGen = InputToGeneratorConverter.convertInput(fileInput);
+          if (relInpGen != null) {
+            inputGenerators.add(relInpGen);
           }
         }
       } else {
