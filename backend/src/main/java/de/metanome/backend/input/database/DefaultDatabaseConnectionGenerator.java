@@ -23,7 +23,7 @@ import de.metanome.algorithm_integration.input.DatabaseConnectionGenerator;
 import de.metanome.algorithm_integration.input.InputGenerationException;
 import de.metanome.algorithm_integration.input.RelationalInput;
 
-import javax.persistence.Transient;
+import jakarta.persistence.Transient;
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
