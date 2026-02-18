@@ -24,7 +24,7 @@ public class AlgorithmExecutionParams {
 
   private long algorithmId;
   private String executionIdentifier;
-  private List<ConfigurationRequirement> requirements;
+  private List<ConfigurationRequirement<?>> requirements;
   private Boolean cacheResults = false;
   private Boolean writeResults = false;
   private Boolean countResults = false;
@@ -48,11 +48,11 @@ public class AlgorithmExecutionParams {
     return this;
   }
 
-  public List<ConfigurationRequirement> getRequirements() {
+  public List<ConfigurationRequirement<?>> getRequirements() {
     return requirements;
   }
 
-  public AlgorithmExecutionParams setRequirements(List<ConfigurationRequirement> requirements) {
+  public AlgorithmExecutionParams setRequirements(List<ConfigurationRequirement<?>> requirements) {
     this.requirements = requirements;
     return this;
   }
