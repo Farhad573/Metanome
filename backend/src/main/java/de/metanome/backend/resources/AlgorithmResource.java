@@ -27,16 +27,20 @@ import de.metanome.backend.results_db.HibernateUtil;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Restrictions;
+import de.metanome.backend.results_db.HibernateUtil.PropertyFilter;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.net.URLDecoder;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -56,7 +60,6 @@ import javax.ws.rs.core.Response;
 @Path(Constants.ALGORITHMS_RESOURCE_NAME)
 public class AlgorithmResource implements Resource<Algorithm> {
 
-
   /**
    * Adds a algorithm to the database for file already existing in the algorithms directory.
    *
@@ -73,7 +76,6 @@ public class AlgorithmResource implements Resource<Algorithm> {
       throw new WebException(e, Response.Status.BAD_REQUEST);
     }
   }
-
 
 
 
@@ -161,6 +163,100 @@ public class AlgorithmResource implements Resource<Algorithm> {
   }
 
   /**
+   * deletes the algorithm (DB record) and removes the physical JAR file from the
+   * algorithms directory. if the file is already absent, it just removes the DB entry.
+   *
+   * @param id algorithm id
+   * @return JSON summary containing id, fileName, fileDeleted flag
+   */
+  @DELETE
+  @Path("/remove-with-file/{id}")
+  @Produces(Constants.APPLICATION_JSON_RESOURCE_PATH)
+  public Response deleteWithFile(@PathParam("id") long id) {
+    try {
+      Algorithm algorithm = (Algorithm) HibernateUtil.retrieve(Algorithm.class, id);
+      if (algorithm == null) {
+        throw new WebException("Algorithm id " + id + " not found", Response.Status.NOT_FOUND);
+      }
+      String fileName = algorithm.getFileName();
+      boolean fileDeleted = false;
+      try {
+        if (fileName != null && !fileName.isEmpty()) {
+          AlgorithmFinder finder = new AlgorithmFinder();
+          String dir = finder.getAlgorithmDirectory();
+          // normaliz potential leading slash before windows drive letter
+          if (dir.matches("^/[A-Za-z]:/.*")) {
+            dir = dir.substring(1);
+          }
+          String decodedDir = URLDecoder.decode(dir,Constants.FILE_ENCODING);
+          java.nio.file.Path algorithmsDirPath = java.nio.file.Paths.get(decodedDir).normalize();
+          java.nio.file.Path jarPath = algorithmsDirPath.resolve(fileName);
+          java.nio.file.Path normalized = jarPath.normalize();
+          fileDeleted = java.nio.file.Files.deleteIfExists(normalized);
+        }
+      } catch (Exception fileEx) {
+        // continue even if physical deletion fails
+      }
+      HibernateUtil.delete(algorithm);
+      Map<String, Object> payload = new HashMap<>();
+      payload.put("id", id);
+      payload.put("fileName", fileName);
+      payload.put("fileDeleted", fileDeleted);
+      payload.put("fileDeletedAlgorithmsDir", fileDeleted);
+      return Response.ok(payload).build();
+    } catch (Exception e) {
+      throw new WebException(e, Response.Status.BAD_REQUEST);
+    }
+  }
+
+  /**
+   * removes all algorithms from db and their physical JAR files where present. returns counts for
+   * processed algorithms and deleted files.
+   */
+  @DELETE
+  @Path("/remove-all-with-files")
+  @Produces(Constants.APPLICATION_JSON_RESOURCE_PATH)
+  public Response deleteAllWithFiles() {
+    try {
+      @SuppressWarnings(Constants.SUPPRESS_WARNINGS_UNCHECKED)
+      List<Algorithm> all = (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class);
+      int fileDeletedCount = 0;
+      AlgorithmFinder finder = new AlgorithmFinder();
+      String dir = finder.getAlgorithmDirectory();
+      // normaliz potential leading slash before windows drive letter
+      if (dir.matches("^/[A-Za-z]:/.*")) {
+        dir = dir.substring(1);
+      }
+      String decodedDir = URLDecoder.decode(dir, Constants.FILE_ENCODING);
+      java.nio.file.Path algorithmsDirPath = java.nio.file.Paths.get(decodedDir).normalize();
+      for (Algorithm algorithm : all) {
+        String fileName = algorithm.getFileName();
+        if (fileName != null && !fileName.isEmpty()) {
+          try {
+            java.nio.file.Path p = algorithmsDirPath.resolve(fileName).normalize();
+            if (java.nio.file.Files.deleteIfExists(p)) {
+              fileDeletedCount++;
+            }
+          } catch (Exception ignore) {
+            
+          }
+        }
+        try {
+          HibernateUtil.delete(algorithm);
+        } catch (Exception exception) {
+          
+        }
+      }
+      Map<String, Object> payload = new HashMap<>();
+      payload.put("algorithmsProcessed", all.size());
+      payload.put("filesDeleted", fileDeletedCount);
+      return Response.ok(payload).build();
+    } catch (Exception e) {
+      throw new WebException(e, Response.Status.BAD_REQUEST);
+    }
+  }
+
+  /**
    * Retrieves an Algorithm from the database.
    *
    * @param id the Algorithm's id
@@ -187,7 +283,8 @@ public class AlgorithmResource implements Resource<Algorithm> {
   @Override
   public List<Algorithm> getAll() {
     try {
-      return (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class);
+      List<Algorithm> algorithms = (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class);
+      return algorithms;
     } catch (Exception e) {
       throw new WebException(e, Response.Status.BAD_REQUEST);
     }
@@ -252,7 +349,7 @@ public class AlgorithmResource implements Resource<Algorithm> {
       throw new WebException(e, Response.Status.BAD_REQUEST);
     }
   }
-  
+
   /**
    * @return all conditional inclusion dependency algorithms in the database
    */
@@ -342,7 +439,7 @@ public class AlgorithmResource implements Resource<Algorithm> {
       throw new WebException(e, Response.Status.BAD_REQUEST);
     }
   }
-  
+
   /**
    * @return all denial constraint algorithms in the database
    */
@@ -372,13 +469,14 @@ public class AlgorithmResource implements Resource<Algorithm> {
     Set<Class<?>> interfaces = new HashSet<>(Arrays.asList(algorithmClass));
     
     // Cannot directly use array, as some interfaces might not be relevant for query.
-    Criterion[] criteria =  AlgorithmType.asStream()
-            .filter( type -> type.hasResult())
-            .filter( executableType -> interfaces.contains(executableType.getAlgorithmClass()))
-            .map( containedType -> Restrictions.eq(containedType.getAbbreviation(), true))
-            .toArray(Criterion[]::new);
-
-    return (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class, criteria);
+    PropertyFilter[] criteria = AlgorithmType.asStream().filter(type -> type.hasResult())
+        .filter(executableType -> interfaces.contains(executableType.getAlgorithmClass()))
+        .map(containedType -> HibernateUtil.eq(containedType.getAbbreviation(), true))
+        .toArray(PropertyFilter[]::new);
+    @SuppressWarnings(Constants.SUPPRESS_WARNINGS_UNCHECKED)
+    List<Algorithm> algorithms =
+        (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class, criteria);
+    return algorithms;
   }
 
   /**
@@ -447,15 +545,16 @@ public class AlgorithmResource implements Resource<Algorithm> {
   @SuppressWarnings(Constants.SUPPRESS_WARNINGS_UNCHECKED)
   public List<Algorithm> getAlgorithmsForFileInputs() {
     try {
-      ArrayList<Criterion> criteria = new ArrayList<>();
-      criteria.add(Restrictions.eq("fileInput", true));
+      ArrayList<PropertyFilter> criteria = new ArrayList<>();
+      criteria.add(HibernateUtil.eq("fileInput", true));
 
-      List<Algorithm> algorithms = (List<Algorithm>) HibernateUtil
-            .queryCriteria(Algorithm.class, criteria.toArray(new Criterion[criteria.size()]));
+      List<Algorithm> algorithms = (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class,
+          criteria.toArray(new PropertyFilter[criteria.size()]));
 
       criteria = new ArrayList<>();
-      criteria.add(Restrictions.eq("relationalInput", true));
-      List<Algorithm> storedAlgorithms = (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class, criteria.toArray(new Criterion[criteria.size()]));
+      criteria.add(HibernateUtil.eq("relationalInput", true));
+      List<Algorithm> storedAlgorithms = (List<Algorithm>) HibernateUtil
+          .queryCriteria(Algorithm.class, criteria.toArray(new PropertyFilter[criteria.size()]));
       if (algorithms != null) {
         algorithms.addAll(storedAlgorithms);
       }
@@ -473,16 +572,17 @@ public class AlgorithmResource implements Resource<Algorithm> {
   @SuppressWarnings(Constants.SUPPRESS_WARNINGS_UNCHECKED)
   public List<Algorithm> getAlgorithmsForTableInputs() {
     try {
-      ArrayList<Criterion> criteria = new ArrayList<>();
-      criteria.add(Restrictions.eq("fileInput", true));
+      ArrayList<PropertyFilter> criteria = new ArrayList<>();
+      criteria.add(HibernateUtil.eq("fileInput", true));
 
-      List<Algorithm> algorithms = (List<Algorithm>) HibernateUtil
-        .queryCriteria(Algorithm.class, criteria.toArray(new Criterion[criteria.size()]));
+      List<Algorithm> algorithms = (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class,
+          criteria.toArray(new PropertyFilter[criteria.size()]));
 
       criteria = new ArrayList<>();
-      criteria.add(Restrictions.eq("relationalInput", true));
+      criteria.add(HibernateUtil.eq("relationalInput", true));
 
-      List<Algorithm> storedAlgorithms = (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class, criteria.toArray(new Criterion[criteria.size()]));
+      List<Algorithm> storedAlgorithms = (List<Algorithm>) HibernateUtil
+          .queryCriteria(Algorithm.class, criteria.toArray(new PropertyFilter[criteria.size()]));
       if (algorithms != null) {
         algorithms.addAll(storedAlgorithms);
       }
@@ -500,11 +600,12 @@ public class AlgorithmResource implements Resource<Algorithm> {
   @SuppressWarnings(Constants.SUPPRESS_WARNINGS_UNCHECKED)
   public List<Algorithm> getAlgorithmsForDatabaseConnections() {
     try {
-      ArrayList<Criterion> criteria = new ArrayList<>();
-      criteria.add(Restrictions.eq("databaseConnection", true));
+      ArrayList<PropertyFilter> criteria = new ArrayList<>();
+      criteria.add(HibernateUtil.eq("databaseConnection", true));
 
-      return (List<Algorithm>) HibernateUtil
-          .queryCriteria(Algorithm.class, criteria.toArray(new Criterion[criteria.size()]));
+      List<Algorithm> algorithms = (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class,
+          criteria.toArray(new PropertyFilter[criteria.size()]));
+      return algorithms;
     } catch (EntityStorageException e) {
       e.printStackTrace();
       throw new WebException(e, Response.Status.BAD_REQUEST);
