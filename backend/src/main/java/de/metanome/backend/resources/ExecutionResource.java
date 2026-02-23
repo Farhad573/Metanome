@@ -55,6 +55,43 @@ public class ExecutionResource {
   }
 
   /**
+   * Deletes all executions and their result files from disk.
+   *
+   * @return summary information about the deletion.
+   */
+  @DELETE
+  @Path("/delete-all")
+  @Produces(Constants.APPLICATION_JSON_RESOURCE_PATH)
+  @SuppressWarnings(Constants.SUPPRESS_WARNINGS_UNCHECKED)
+  public HashMap<Integer, Integer> deleteAll() {
+    try {
+      List<Execution> executions = (List<Execution>) HibernateUtil.queryCriteria(Execution.class);
+      int deletedExecutions = 0;
+      int deletedFiles = 0;
+      for (Execution execution : executions) {
+        Set<Result> results = execution.getResults();
+        if (results != null) {
+          for (Result result : results) {
+            File file = new File(result.getFileName());
+            if (file.exists() && file.delete()) {
+              deletedFiles++;
+            }
+          }
+        }
+        HibernateUtil.delete(execution);
+        deletedExecutions++;
+      }
+      HashMap<Integer, Integer> response = new HashMap<>();
+      response.put(0, deletedExecutions);
+      response.put(1, deletedFiles);
+      return response;
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new WebException(e, Response.Status.BAD_REQUEST);
+    }
+  }
+
+  /**
    * Retrieves an execution from the database.
    *
    * @param id the execution's id
