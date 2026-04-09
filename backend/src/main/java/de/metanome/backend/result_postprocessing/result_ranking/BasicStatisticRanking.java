@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * Calculates the rankings for basic statistic results.
  */
-public class BasicStatisticRanking extends Ranking {
+public final class BasicStatisticRanking extends Ranking {
 
   protected List<BasicStatisticResult> results;
 
@@ -43,7 +43,7 @@ public class BasicStatisticRanking extends Ranking {
   /**
    * The occurrence list stores how often a column occurs in the results.
    */
-  protected void createOccurrenceList() {
+  private void createOccurrenceList() {
     initializeOccurrenceList();
 
     for (BasicStatisticResult result : this.results) {
