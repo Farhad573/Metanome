@@ -1,17 +1,15 @@
 /**
  * Copyright 2014-2016 by Metanome Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package de.metanome.backend.results_db;
 
@@ -24,8 +22,8 @@ import com.google.common.annotations.GwtCompatible;
 import de.metanome.backend.input.file.FileIterator;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.Transient;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import java.io.Serializable;
 
 /**
@@ -35,13 +33,8 @@ import java.io.Serializable;
  */
 @Entity
 @GwtCompatible
-@JsonTypeInfo(
-  use = JsonTypeInfo.Id.NAME,
-  include = JsonTypeInfo.As.PROPERTY,
-  property = "type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = FileInput.class, name = "fileInput")
-})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({@JsonSubTypes.Type(value = FileInput.class, name = "fileInput")})
 public class FileInput extends Input implements Serializable {
 
   private static final long serialVersionUID = 235437870676053281L;
@@ -59,8 +52,7 @@ public class FileInput extends Input implements Serializable {
   protected String nullValue;
 
   // Exists for Serialization
-  public FileInput() {
-  }
+  public FileInput() {}
 
   /**
    * Constructs a FileInput with a given file name. Default parser settings are set.
@@ -246,19 +238,9 @@ public class FileInput extends Input implements Serializable {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 31)
-            .append(super.hashCode())
-            .append(fileName)
-            .append(separator)
-            .append(quoteChar)
-            .append(escapeChar)
-            .append(skipLines)
-            .append(strictQuotes)
-            .append(ignoreLeadingWhiteSpace)
-            .append(hasHeader)
-            .append(skipDifferingLines)
-            .append(comment)
-            .append(nullValue)
-            .toHashCode();
+    return new HashCodeBuilder(17, 31).append(super.hashCode()).append(fileName).append(separator)
+        .append(quoteChar).append(escapeChar).append(skipLines).append(strictQuotes)
+        .append(ignoreLeadingWhiteSpace).append(hasHeader).append(skipDifferingLines)
+        .append(comment).append(nullValue).toHashCode();
   }
 }

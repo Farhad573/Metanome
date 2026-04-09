@@ -1,17 +1,15 @@
 /**
  * Copyright 2014-2017 by Metanome Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package de.metanome.backend.results_db;
 
@@ -33,12 +31,7 @@ import java.util.stream.Collectors;
  *
  * @author Jakob Zwiener
  */
-@NamedQueries(
-  @NamedQuery(
-    name = "get all",
-    query = "from Algorithm"
-  )
-)
+@NamedQueries(@NamedQuery(name = "get all", query = "from Algorithm"))
 @Entity
 public class Algorithm implements Serializable, Comparable<Algorithm> {
 
@@ -51,8 +44,8 @@ public class Algorithm implements Serializable, Comparable<Algorithm> {
   protected String description;
 
   // OUTPUT
-  //Todo: Introduce types Hashset instead of booleans - after finding way around Hibernate problems
-  //See AlgorithmResource > listAlgorithms for example why these variables are needed
+  // Todo: Introduce types Hashset instead of booleans - after finding way around Hibernate problems
+  // See AlgorithmResource > listAlgorithms for example why these variables are needed
   protected HashSet<AlgorithmType> algorithmTypes = new HashSet<>();
   protected boolean ind;
   protected boolean fd;
@@ -91,16 +84,16 @@ public class Algorithm implements Serializable, Comparable<Algorithm> {
    * The algorithm should have the appropriate algorithm types set, based on the implemented
    * interfaces.
    *
-   * @param fileName            the file name of the algorithm jar
+   * @param fileName the file name of the algorithm jar
    * @param algorithmInterfaces the implemented interfaces
    */
   public Algorithm(String fileName, Set<Class<?>> algorithmInterfaces) {
     this(fileName);
-    
+
     this.algorithmTypes = AlgorithmType.asStream()
-            .filter( type -> algorithmInterfaces.contains(type.getAlgorithmClass()))
-            .collect(Collectors.toCollection(HashSet::new));
-    
+        .filter(type -> algorithmInterfaces.contains(type.getAlgorithmClass()))
+        .collect(Collectors.toCollection(HashSet::new));
+
     // INPUT
     this.ind = algorithmInterfaces.contains(AlgorithmType.IND.getAlgorithmClass());
     this.fd = algorithmInterfaces.contains(AlgorithmType.FD.getAlgorithmClass());
@@ -116,22 +109,24 @@ public class Algorithm implements Serializable, Comparable<Algorithm> {
     // OUTPUT
     this.fileInput = algorithmInterfaces.contains(AlgorithmType.FILE_INPUT.getAlgorithmClass());
     this.tableInput = algorithmInterfaces.contains(AlgorithmType.TABLE_INPUT.getAlgorithmClass());
-    this.relationalInput = algorithmInterfaces.contains(AlgorithmType.RELATIONAL_INPUT.getAlgorithmClass());
-    this.dbConnection = algorithmInterfaces.contains(AlgorithmType.DB_CONNECTION.getAlgorithmClass());
+    this.relationalInput =
+        algorithmInterfaces.contains(AlgorithmType.RELATIONAL_INPUT.getAlgorithmClass());
+    this.dbConnection =
+        algorithmInterfaces.contains(AlgorithmType.DB_CONNECTION.getAlgorithmClass());
   }
 
   /**
    * This constructor sets all attributes as given, and sets the algorithm types based on the given
    * interfaces. If no name is specified, fileName is used for this purpose.
    *
-   * @param fileName            the file name of the algorithm jar
-   * @param name                the name of the implemented algorithm
-   * @param author              name(s) of the author(s)
-   * @param description         any additional information on the algorithm
+   * @param fileName the file name of the algorithm jar
+   * @param name the name of the implemented algorithm
+   * @param author name(s) of the author(s)
+   * @param description any additional information on the algorithm
    * @param algorithmInterfaces the implemented interfaces
    */
   public Algorithm(String fileName, String name, String author, String description,
-                   Set<Class<?>> algorithmInterfaces) {
+      Set<Class<?>> algorithmInterfaces) {
     this(fileName, algorithmInterfaces);
 
     if (name != null) {
@@ -211,8 +206,8 @@ public class Algorithm implements Serializable, Comparable<Algorithm> {
     setAlgorithmTypeToAlgorithmTypeSet(AlgorithmType.FD, isFd);
     return this;
   }
-  
-   public boolean isCid() {
+
+  public boolean isCid() {
     return cid;
   }
 
@@ -271,7 +266,7 @@ public class Algorithm implements Serializable, Comparable<Algorithm> {
     setAlgorithmTypeToAlgorithmTypeSet(AlgorithmType.OD, isOd);
     return this;
   }
-  
+
   public boolean isMvd() {
     return mvd;
   }
@@ -281,7 +276,7 @@ public class Algorithm implements Serializable, Comparable<Algorithm> {
     setAlgorithmTypeToAlgorithmTypeSet(AlgorithmType.MVD, isMvd);
     return this;
   }
-  
+
   public boolean isBasicStat() {
     return basicStat;
   }
@@ -291,7 +286,7 @@ public class Algorithm implements Serializable, Comparable<Algorithm> {
     setAlgorithmTypeToAlgorithmTypeSet(AlgorithmType.BASIC_STAT, isBasicStat);
     return this;
   }
-  
+
   public boolean isDc() {
     return dc;
   }
@@ -349,95 +344,92 @@ public class Algorithm implements Serializable, Comparable<Algorithm> {
   public void setAlgorithmTypes(HashSet<AlgorithmType> algorithmTypes) {
     this.algorithmTypes = algorithmTypes;
   }
-  
+
   public boolean hasAlgorithmType(AlgorithmType algorithmType) {
     return this.algorithmTypes.contains(algorithmType);
   }
-  
-  public Algorithm setAlgorithmType (AlgorithmType algorithmType, boolean hasAlgorithmType) {
+
+  public Algorithm setAlgorithmType(AlgorithmType algorithmType, boolean hasAlgorithmType) {
     setAlgorithmTypeToAlgorithmTypeSet(algorithmType, hasAlgorithmType);
     setPropertiesAccordingToAlgorithmTypeSet();
     return this;
   }
-  
+
   private void setAlgorithmTypeProperty(AlgorithmType algorithmType, boolean hasAlgorithmType) {
-      if (algorithmType.equals(AlgorithmType.IND)) {
-          setInd(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.FD)) {
-          setFd(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.CID)) {
-          setCid(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.MD)) {
-          setMd(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.CFD)) {
-          setCfd(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.UCC)) {
-          setUcc(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.CUCC)) {
-          setCucc(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.OD)) {
-          setOd(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.MVD)) {
-          setMvd(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.DC)) {
-          setDc(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.BASIC_STAT)) {
-          setBasicStat(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.FILE_INPUT)) {
-          setFileInput(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.DB_CONNECTION)) {
-          setDbConnection(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.TABLE_INPUT)) {
-          setTableInput(hasAlgorithmType);
-      }
-      if (algorithmType.equals(AlgorithmType.RELATIONAL_INPUT)) {
-          setRelationalInput(hasAlgorithmType);
-      }
-  }
-  
-  private void setAlgorithmTypeToAlgorithmTypeSet(AlgorithmType algorithmType, boolean hasAlgorithmType) {
-      if (hasAlgorithmType) {
-        this.algorithmTypes.add(algorithmType);
-      } else {
-        this.algorithmTypes.remove(algorithmType);
-      }
-  }
-  
-  /**
-   * Iterates through every AlgorithmType and sets this class' properties
-   * accordingly to whether algorithmTypes contains a certain AlgorithmType or not.
-   */ 
-  private void setPropertiesAccordingToAlgorithmTypeSet() {
-        for (AlgorithmType type : AlgorithmType.values()) {
-            if (hasAlgorithmType(type)) {
-                setAlgorithmTypeProperty(type, true);
-            } else {
-                setAlgorithmTypeProperty(type, false);
-            }
-        }
+    if (algorithmType.equals(AlgorithmType.IND)) {
+      setInd(hasAlgorithmType);
     }
-  
+    if (algorithmType.equals(AlgorithmType.FD)) {
+      setFd(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.CID)) {
+      setCid(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.MD)) {
+      setMd(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.CFD)) {
+      setCfd(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.UCC)) {
+      setUcc(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.CUCC)) {
+      setCucc(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.OD)) {
+      setOd(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.MVD)) {
+      setMvd(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.DC)) {
+      setDc(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.BASIC_STAT)) {
+      setBasicStat(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.FILE_INPUT)) {
+      setFileInput(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.DB_CONNECTION)) {
+      setDbConnection(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.TABLE_INPUT)) {
+      setTableInput(hasAlgorithmType);
+    }
+    if (algorithmType.equals(AlgorithmType.RELATIONAL_INPUT)) {
+      setRelationalInput(hasAlgorithmType);
+    }
+  }
+
+  private void setAlgorithmTypeToAlgorithmTypeSet(AlgorithmType algorithmType,
+      boolean hasAlgorithmType) {
+    if (hasAlgorithmType) {
+      this.algorithmTypes.add(algorithmType);
+    } else {
+      this.algorithmTypes.remove(algorithmType);
+    }
+  }
+
+  /**
+   * Iterates through every AlgorithmType and sets this class' properties accordingly to whether
+   * algorithmTypes contains a certain AlgorithmType or not.
+   */
+  private void setPropertiesAccordingToAlgorithmTypeSet() {
+    for (AlgorithmType type : AlgorithmType.values()) {
+      if (hasAlgorithmType(type)) {
+        setAlgorithmTypeProperty(type, true);
+      } else {
+        setAlgorithmTypeProperty(type, false);
+      }
+    }
+  }
+
 
   @XmlTransient
   @JsonIgnore
-  @OneToMany(
-    fetch = FetchType.EAGER,
-    mappedBy = "algorithm",
-    cascade = CascadeType.ALL
-  )
+  @OneToMany(fetch = FetchType.EAGER, mappedBy = "algorithm", cascade = CascadeType.ALL)
   @OnDelete(action = OnDeleteAction.CASCADE)
   public List<Execution> getExecutions() {
     return executions;
@@ -474,7 +466,9 @@ public class Algorithm implements Serializable, Comparable<Algorithm> {
     return fileName != null ? fileName.hashCode() : 0;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
   @Override
@@ -485,19 +479,15 @@ public class Algorithm implements Serializable, Comparable<Algorithm> {
 
   @Override
   public String toString() {
-    String algorithmListing =
-        "Algorithm ["
-        + "fileName=" + fileName
-        + ", name=" + name
-        + ", author=" + author
-        + ", description=" + description;
-    
+    String algorithmListing = "Algorithm [" + "fileName=" + fileName + ", name=" + name
+        + ", author=" + author + ", description=" + description;
+
     algorithmListing = AlgorithmType.asStream()
-            .map( type -> ", " + type.getAbbreviation() + " = " + hasAlgorithmType(type))
-            .reduce(algorithmListing, String::concat);
-    
+        .map(type -> ", " + type.getAbbreviation() + " = " + hasAlgorithmType(type))
+        .reduce(algorithmListing, String::concat);
+
     algorithmListing += "]";
-    
+
     return algorithmListing;
   }
 }

@@ -1,17 +1,15 @@
 /**
  * Copyright 2014-2016 by Metanome Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package de.metanome.backend.results_db;
 
@@ -20,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.annotations.GwtCompatible;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,15 +32,10 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @GwtCompatible
-@JsonTypeInfo(
-  use = JsonTypeInfo.Id.NAME,
-  include = JsonTypeInfo.As.PROPERTY,
-  property = "type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = FileInput.class, name = "fileInput"),
-  @JsonSubTypes.Type(value = TableInput.class, name = "tableInput"),
-  @JsonSubTypes.Type(value = DatabaseConnection.class, name = "databaseConnection")
-})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({@JsonSubTypes.Type(value = FileInput.class, name = "fileInput"),
+    @JsonSubTypes.Type(value = TableInput.class, name = "tableInput"),
+    @JsonSubTypes.Type(value = DatabaseConnection.class, name = "databaseConnection")})
 
 public class Input implements Serializable {
 
@@ -53,8 +46,7 @@ public class Input implements Serializable {
   protected List<Execution> executions = new ArrayList<>();
 
   // Exists for Serialization
-  public Input() {
-  }
+  public Input() {}
 
   public Input(String name) {
     this.name = name;

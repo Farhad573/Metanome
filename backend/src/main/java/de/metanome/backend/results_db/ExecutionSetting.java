@@ -1,29 +1,28 @@
 /**
  * Copyright 2015-2016 by Metanome Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package de.metanome.backend.results_db;
 
 import com.google.common.annotations.GwtCompatible;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.List;
 
 /**
- * Represents ExecutionSetting in Database containing configurationValues, inputs and Execution Identifier
+ * Represents ExecutionSetting in Database containing configurationValues, inputs and Execution
+ * Identifier
  */
 @Entity
 @GwtCompatible
@@ -42,18 +41,17 @@ public class ExecutionSetting implements Serializable {
   /**
    * Exists for hibernate serialization
    */
-  protected ExecutionSetting() {
-  }
+  protected ExecutionSetting() {}
 
   public ExecutionSetting(List<String> parameterValuesJson, List<String> inputsJson,
-                          String executionIdentifier) {
+      String executionIdentifier) {
     this.parameterValuesJson = parameterValuesJson;
     this.inputsJson = inputsJson;
     this.executionIdentifier = executionIdentifier;
   }
 
   @XmlTransient
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @Column(columnDefinition = "LONGVARCHAR")
   public List<String> getParameterValuesJson() {
     return parameterValuesJson;
@@ -64,7 +62,7 @@ public class ExecutionSetting implements Serializable {
   }
 
   @XmlTransient
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @Column(columnDefinition = "LONGVARCHAR")
   public List<String> getInputsJson() {
     return inputsJson;

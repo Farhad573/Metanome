@@ -1,17 +1,15 @@
 /**
  * Copyright 2014-2016 by Metanome Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package de.metanome.backend.results_db;
 
@@ -23,8 +21,8 @@ import de.metanome.algorithm_integration.configuration.ConfigurationSettingDatab
 import de.metanome.algorithm_integration.configuration.DbSystem;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.Transient;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import java.io.Serializable;
 
 /**
@@ -34,13 +32,8 @@ import java.io.Serializable;
  */
 @Entity
 @GwtCompatible
-@JsonTypeInfo(
-  use = JsonTypeInfo.Id.NAME,
-  include = JsonTypeInfo.As.PROPERTY,
-  property = "type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = DatabaseConnection.class, name = "databaseConnection")
-})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({@JsonSubTypes.Type(value = DatabaseConnection.class, name = "databaseConnection")})
 public class DatabaseConnection extends Input implements Serializable {
 
   private static final long serialVersionUID = 4924078640889259327L;
@@ -52,8 +45,7 @@ public class DatabaseConnection extends Input implements Serializable {
   protected String comment;
 
   // Exists for Serialization
-  public DatabaseConnection() {
-  }
+  public DatabaseConnection() {}
 
   public DatabaseConnection(String name) {
     super(name);
@@ -141,21 +133,16 @@ public class DatabaseConnection extends Input implements Serializable {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 31)
-            .append(super.hashCode())
-            .append(url)
-            .append(username)
-            .append(password)
-            .append(system)
-            .append(comment)
-            .toHashCode();
+    return new HashCodeBuilder(17, 31).append(super.hashCode()).append(url).append(username)
+        .append(password).append(system).append(comment).toHashCode();
   }
 
   @Override
   @Transient
   @JsonIgnore
   public String getIdentifier() {
-    return ConfigurationSettingDatabaseConnection.getIdentifier(this.url, this.username, this.system);
+    return ConfigurationSettingDatabaseConnection.getIdentifier(this.url, this.username,
+        this.system);
   }
 
 }

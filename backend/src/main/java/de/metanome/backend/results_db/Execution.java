@@ -1,17 +1,15 @@
 /**
  * Copyright 2014-2016 by Metanome Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package de.metanome.backend.results_db;
 
@@ -28,20 +26,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 /**
  * Represents an execution in the database.
@@ -50,7 +48,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Table(name = "execution",
-  uniqueConstraints = @UniqueConstraint(columnNames = {"algorithm", "begin"}))
+    uniqueConstraints = @UniqueConstraint(columnNames = {"algorithm", "begin"}))
 public class Execution implements Serializable, Comparable<Execution> {
 
   private static final long serialVersionUID = 4017212825849060554L;
@@ -88,7 +86,7 @@ public class Execution implements Serializable, Comparable<Execution> {
 
   /**
    * @param algorithm the executed algorithm
-   * @param begin     the start time of the execution
+   * @param begin the start time of the execution
    */
   public Execution(Algorithm algorithm, long begin) {
     this.algorithm = algorithm;
@@ -183,11 +181,8 @@ public class Execution implements Serializable, Comparable<Execution> {
 
   @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @Fetch(value = FetchMode.SELECT)
-  @JoinTable(
-    name = "execution_input",
-    joinColumns = {@JoinColumn(name = "execution_id")},
-    inverseJoinColumns = {@JoinColumn(name = "input_id")}
-  )
+  @JoinTable(name = "execution_input", joinColumns = {@JoinColumn(name = "execution_id")},
+      inverseJoinColumns = {@JoinColumn(name = "input_id")})
   public List<Input> getInputs() {
     return inputs;
   }
@@ -198,11 +193,7 @@ public class Execution implements Serializable, Comparable<Execution> {
     return this;
   }
 
-  @OneToMany(
-    fetch = FetchType.EAGER,
-    mappedBy = "execution",
-    cascade = CascadeType.ALL
-  )
+  @OneToMany(fetch = FetchType.EAGER, mappedBy = "execution", cascade = CascadeType.ALL)
   @OnDelete(action = OnDeleteAction.CASCADE)
   public Set<Result> getResults() {
     return results;
@@ -234,7 +225,9 @@ public class Execution implements Serializable, Comparable<Execution> {
     return this;
   }
 
-  public boolean isRunning() { return this.running; }
+  public boolean isRunning() {
+    return this.running;
+  }
 
   public Execution setRunning(boolean running) {
     this.running = running;
@@ -294,8 +287,8 @@ public class Execution implements Serializable, Comparable<Execution> {
   }
 
   /**
-   * Adds an {@link de.metanome.backend.results_db.Input} to the list of {@link
-   * de.metanome.backend.results_db.Input}s.
+   * Adds an {@link de.metanome.backend.results_db.Input} to the list of
+   * {@link de.metanome.backend.results_db.Input}s.
    *
    * @param input the Input to add.
    * @return the modified execution
@@ -307,8 +300,8 @@ public class Execution implements Serializable, Comparable<Execution> {
   }
 
   /**
-   * Adds a {@link de.metanome.backend.results_db.Result} to the list of {@link
-   * de.metanome.backend.results_db.Result}s and creates a bidirectional association.
+   * Adds a {@link de.metanome.backend.results_db.Result} to the list of
+   * {@link de.metanome.backend.results_db.Result}s and creates a bidirectional association.
    *
    * @param result the Result to add
    * @return the modified execution

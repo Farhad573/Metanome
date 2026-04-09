@@ -1,17 +1,15 @@
 /**
  * Copyright 2014-2016 by Metanome Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package de.metanome.backend.results_db;
 
@@ -22,9 +20,9 @@ import com.google.common.annotations.GwtCompatible;
 import de.metanome.algorithm_integration.configuration.ConfigurationSettingTableInput;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import java.io.Serializable;
 
 /**
@@ -34,13 +32,8 @@ import java.io.Serializable;
  */
 @Entity
 @GwtCompatible
-@JsonTypeInfo(
-  use = JsonTypeInfo.Id.NAME,
-  include = JsonTypeInfo.As.PROPERTY,
-  property = "type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = TableInput.class, name = "tableInput")
-})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({@JsonSubTypes.Type(value = TableInput.class, name = "tableInput")})
 public class TableInput extends Input implements Serializable {
 
   private static final long serialVersionUID = -4091112658105793585L;
@@ -50,15 +43,15 @@ public class TableInput extends Input implements Serializable {
   protected String comment;
 
   // Exists for Serialization
-  public TableInput() {
-  }
+  public TableInput() {}
 
   public TableInput(String name) {
     super(name);
   }
 
   public TableInput(String tableName, DatabaseConnection databaseConnection) {
-    super(ConfigurationSettingTableInput.getIdentifier(tableName, databaseConnection.getUrl(), databaseConnection.getUsername(), databaseConnection.getSystem()));
+    super(ConfigurationSettingTableInput.getIdentifier(tableName, databaseConnection.getUrl(),
+        databaseConnection.getUsername(), databaseConnection.getSystem()));
 
     this.tableName = tableName;
     this.databaseConnection = databaseConnection;
@@ -104,16 +97,14 @@ public class TableInput extends Input implements Serializable {
   @Transient
   @JsonIgnore
   public String getIdentifier() {
-    return ConfigurationSettingTableInput.getIdentifier(this.tableName, this.databaseConnection.getUrl(), this.databaseConnection.getUsername(), this.databaseConnection.getSystem());
+    return ConfigurationSettingTableInput.getIdentifier(this.tableName,
+        this.databaseConnection.getUrl(), this.databaseConnection.getUsername(),
+        this.databaseConnection.getSystem());
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 31)
-            .append(super.hashCode())
-            .append(tableName)
-            .append(databaseConnection)
-            .append(comment)
-            .toHashCode();
+    return new HashCodeBuilder(17, 31).append(super.hashCode()).append(tableName)
+        .append(databaseConnection).append(comment).toHashCode();
   }
 }
