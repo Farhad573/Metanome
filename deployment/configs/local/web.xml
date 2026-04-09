@@ -3,7 +3,7 @@
          xmlns="http://java.sun.com/xml/ns/javaee"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
-  <!-- it make the tomcat a static file server for React frontend build output and forwards all requests to index.html to fix the refresh problem. -->
+
   <servlet>
     <servlet-name>frontend</servlet-name>
     <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
