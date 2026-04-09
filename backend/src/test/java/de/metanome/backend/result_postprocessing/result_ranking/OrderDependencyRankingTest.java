@@ -52,7 +52,7 @@ public class OrderDependencyRankingTest {
         }
       }
 	  @Override
-	  public void close() throws Exception {}
+    public void close() {}
     };
 
     TableInformation tableInformation = new TableInformation(relationalInputGenerator, false, new BitSet());

@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.doThrow;
@@ -77,7 +78,7 @@ public class TempFileGeneratorTest {
     // Setup
     TempFileGenerator tempFileGenerator = new TempFileGenerator();
     File actualFile = tempFileGenerator.getTemporaryFile();
-    PrintWriter writer = new PrintWriter(actualFile);
+    PrintWriter writer = new PrintWriter(actualFile, StandardCharsets.UTF_8);
     // Expected values
     String expectedFileContent = "some content";
 
@@ -86,7 +87,7 @@ public class TempFileGeneratorTest {
     assertEquals(0, actualFile.length());
     writer.print(expectedFileContent);
     writer.close();
-    assertEquals(expectedFileContent, FileUtils.readFileToString(actualFile));
+    assertEquals(expectedFileContent, FileUtils.readFileToString(actualFile, StandardCharsets.UTF_8));
 
     // Cleanup
     tempFileGenerator.close();

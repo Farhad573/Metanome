@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -94,22 +93,61 @@ public class DefaultFileInputGeneratorTest {
    * setting.
    */
   @Test
-  public void testConstructorSetting() throws AlgorithmConfigurationException,
-    FileNotFoundException {
+  public void testConstructorSetting() throws Exception {
     // Setup
     ConfigurationSettingFileInput
       defaultSetting =
       new ConfigurationSettingFileInput(expectedFile.getPath());
 
     // Execute functionality
-    DefaultFileInputGenerator actualGenerator = new DefaultFileInputGenerator(expectedFile);
+    try (DefaultFileInputGenerator actualGenerator = new DefaultFileInputGenerator(expectedFile)) {
+      // Check result
+      assertEquals(expectedFile, actualGenerator.inputFile);
+      assertEquals(defaultSetting.hasHeader(), actualGenerator.getSetting().hasHeader());
+      assertEquals(defaultSetting.isSkipDifferingLines(),
+        actualGenerator.getSetting().isSkipDifferingLines());
+      assertEquals(defaultSetting.isStrictQuotes(), actualGenerator.getSetting().isStrictQuotes());
+    }
+  }
 
-    // Check result
-    assertEquals(expectedFile, actualGenerator.inputFile);
-    assertEquals(defaultSetting.hasHeader(), actualGenerator.getSetting().hasHeader());
-    assertEquals(defaultSetting.isSkipDifferingLines(),
-      actualGenerator.getSetting().isSkipDifferingLines());
-    assertEquals(defaultSetting.isStrictQuotes(), actualGenerator.getSetting().isStrictQuotes());
+  @Test
+  public void resolvesRelativeAndGlobAndDirectory() throws Exception {
+    // Arrange: create a temporary directory with files
+    File tempDir = java.nio.file.Files.createTempDirectory("metanome-test").toFile();
+    tempDir.deleteOnExit();
+    File sub = new File(tempDir, "dir");
+    sub.mkdirs();
+    File csv = new File(sub, "customers.csv");
+    try (java.io.FileWriter fw = new java.io.FileWriter(csv)) { fw.write("a,b\n1,2\n"); }
+
+    // Case 1: directory path picks first accepted file
+    ConfigurationSettingFileInput dirSetting = new ConfigurationSettingFileInput(sub.getAbsolutePath());
+    try (DefaultFileInputGenerator genDir = new DefaultFileInputGenerator(dirSetting)) {
+      RelationalInput ri1 = genDir.generateNewCopy();
+    // should open without exception and read header
+      org.junit.Assert.assertEquals(java.util.Arrays.asList("a","b"), ri1.columnNames());
+    }
+
+    // Case 2: glob pattern resolves file
+    String glob = new File(sub, "*.csv").getPath();
+    ConfigurationSettingFileInput globSetting = new ConfigurationSettingFileInput(glob);
+    try (DefaultFileInputGenerator genGlob = new DefaultFileInputGenerator(globSetting)) {
+      RelationalInput ri2 = genGlob.generateNewCopy();
+      org.junit.Assert.assertEquals(java.util.Arrays.asList("a","b"), ri2.columnNames());
+    }
+  }
+
+  @Test(expected = AlgorithmConfigurationException.class)
+  public void throwsDetailedWhenMissing() throws Exception {
+    String missing = new File("this/path/does/not/exist.csv").getPath();
+    ConfigurationSettingFileInput cs = new ConfigurationSettingFileInput(missing);
+    try {
+      new DefaultFileInputGenerator(cs);
+    } catch (AlgorithmConfigurationException e) {
+      org.junit.Assert.assertTrue(e.getMessage().contains("original='"));
+      org.junit.Assert.assertTrue(e.getMessage().contains("user.dir='"));
+      throw e;
+    }
   }
 
   /**

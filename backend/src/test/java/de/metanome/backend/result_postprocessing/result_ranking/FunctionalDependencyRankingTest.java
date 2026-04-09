@@ -53,7 +53,7 @@ public class FunctionalDependencyRankingTest {
         }
       }
 	  @Override
-	  public void close() throws Exception {}
+    public void close() {}
     };
     tableName = FileFixtureFunctionalDependency.TABLE_NAME;
 
@@ -103,7 +103,7 @@ public class FunctionalDependencyRankingTest {
         }
       }
 	  @Override
-	  public void close() throws Exception {}
+    public void close() {}
     };
     tableName = FileFixturePollution.TABLE_NAME;
 
@@ -143,7 +143,7 @@ public class FunctionalDependencyRankingTest {
         }
       }
 	  @Override
-	  public void close() throws Exception {}
+    public void close() {}
     };
     tableName = FileFixtureInformationGain.TABLE_NAME;
 

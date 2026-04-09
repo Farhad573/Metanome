@@ -58,7 +58,7 @@ public class FunctionalDependencyResultAnalyzerTest {
         }
       }
 	  @Override
-	  public void close() throws Exception {}
+    public void close() {}
     };
 
     this.generators = new ArrayList<>();

@@ -15,8 +15,6 @@
  */
 package de.metanome.backend.result_receiver;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import de.metanome.algorithm_integration.result_receiver.CouldNotReceiveResultException;
 import de.metanome.algorithm_integration.results.BasicStatistic;
 import de.metanome.algorithm_integration.results.DenialConstraint;
@@ -29,6 +27,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -88,7 +88,7 @@ public class ResultCounterTest {
       new File(resultCounter.getOutputFilePathPrefix() + ResultType.UCC.getEnding());
     assertTrue(actualFile.exists());
 
-    String fileContent = Files.toString(actualFile, Charsets.UTF_8);
+    String fileContent = Files.readString(actualFile.toPath(), StandardCharsets.UTF_8);
 
     assertTrue(fileContent.contains("Unique Column Combination: 1"));
 

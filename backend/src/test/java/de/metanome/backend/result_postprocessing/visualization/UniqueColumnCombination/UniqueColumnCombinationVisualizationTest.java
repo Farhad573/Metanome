@@ -54,7 +54,7 @@ public class UniqueColumnCombinationVisualizationTest {
         }
       }
 	  @Override
-	  public void close() throws Exception {}
+    public void close() {}
     };
 
     tableInformation = new TableInformation(relationalInputGenerator, false, new BitSet());

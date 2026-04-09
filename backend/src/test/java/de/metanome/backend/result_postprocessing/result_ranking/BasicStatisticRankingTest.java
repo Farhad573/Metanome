@@ -51,7 +51,7 @@ public class BasicStatisticRankingTest {
         }
       }
 	  @Override
-	  public void close() throws Exception {}
+    public void close() {}
     };
 
     TableInformation tableInformation = new TableInformation(relationalInputGenerator, true, new BitSet());

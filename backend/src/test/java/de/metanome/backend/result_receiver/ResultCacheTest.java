@@ -15,8 +15,6 @@
  */
 package de.metanome.backend.result_receiver;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import de.metanome.algorithm_integration.ColumnCombination;
 import de.metanome.algorithm_integration.ColumnIdentifier;
 import de.metanome.algorithm_integration.result_receiver.ColumnNameMismatchException;
@@ -30,6 +28,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -132,7 +132,7 @@ public class ResultCacheTest {
     File actualFile = new File(resultCache.getOutputFilePathPrefix() + ResultType.FD.getEnding());
     assertTrue(actualFile.exists());
 
-    String fileContent = Files.toString(actualFile, Charsets.UTF_8);
+    String fileContent = Files.readString(actualFile.toPath(), StandardCharsets.UTF_8);
 
     assertTrue(fileContent.contains(expectedFd.toString(tableMapping, columnMapping)));
 

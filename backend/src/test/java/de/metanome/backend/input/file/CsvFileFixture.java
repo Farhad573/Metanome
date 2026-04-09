@@ -27,7 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CsvFileFixture {
+public final class CsvFileFixture {
 
   protected static final char QUOTE_CHAR = '"';
   protected static final char SEPARATOR = ',';

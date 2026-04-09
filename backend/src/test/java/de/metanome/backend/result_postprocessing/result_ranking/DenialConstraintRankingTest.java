@@ -46,7 +46,7 @@ public class DenialConstraintRankingTest {
         }
       }
       @Override
-      public void close() throws Exception {}
+      public void close() {}
     };
     
     DenialConstraint dc1 = new DenialConstraint(mock(Predicate.class));

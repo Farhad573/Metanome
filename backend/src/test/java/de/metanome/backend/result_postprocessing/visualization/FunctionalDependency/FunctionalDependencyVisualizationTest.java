@@ -65,7 +65,7 @@ public class FunctionalDependencyVisualizationTest {
         }
       }
 	  @Override
-	  public void close() throws Exception {}
+      public void close() {}
     };
     tableName = FileFixtureFunctionalDependency.TABLE_NAME;
 

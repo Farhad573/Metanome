@@ -15,8 +15,6 @@
  */
 package de.metanome.backend.result_receiver;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import de.metanome.algorithm_integration.ColumnCombination;
 import de.metanome.algorithm_integration.ColumnIdentifier;
 import de.metanome.algorithm_integration.ColumnPermutation;
@@ -39,6 +37,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import static org.junit.Assert.assertEquals;
@@ -101,7 +101,7 @@ public class ResultPrinterTest {
     File actualFile = new File(printer.getOutputFilePathPrefix() + ResultType.BASIC_STAT.getEnding());
     assertTrue(actualFile.exists());
 
-    String fileContent = Files.toString(actualFile, Charsets.UTF_8);
+    String fileContent = Files.readString(actualFile.toPath(), StandardCharsets.UTF_8);
 
     JsonConverter<BasicStatistic> jsonConverter = new JsonConverter<>();
     assertTrue(fileContent.contains(jsonConverter.toJsonString(expectedStat)));
@@ -133,7 +133,7 @@ public class ResultPrinterTest {
     File actualFile = new File(printer.getOutputFilePathPrefix() + ResultType.FD.getEnding());
     assertTrue(actualFile.exists());
 
-    String fileContent = Files.toString(actualFile, Charsets.UTF_8);
+    String fileContent = Files.readString(actualFile.toPath(), StandardCharsets.UTF_8);
 
     assertTrue(fileContent.contains(expectedFd.toString(printer.tableMapping, printer.columnMapping)));
 
@@ -167,7 +167,7 @@ public class ResultPrinterTest {
     File actualFile = new File(printer.getOutputFilePathPrefix() + ResultType.CID.getEnding());
     assertTrue(actualFile.exists());
 
-    String fileContent = Files.toString(actualFile, Charsets.UTF_8);
+    String fileContent = Files.readString(actualFile.toPath(), StandardCharsets.UTF_8);
 
     assertTrue(fileContent.contains(expectedCid.toString(printer.tableMapping, printer.columnMapping)));
 
@@ -199,7 +199,7 @@ public class ResultPrinterTest {
     File actualFile = new File(printer.getOutputFilePathPrefix() + ResultType.FD.getEnding());
     assertTrue(actualFile.exists());
 
-    String fileContent = Files.toString(actualFile, Charsets.UTF_8);
+    String fileContent = Files.readString(actualFile.toPath(), StandardCharsets.UTF_8);
 
     JsonConverter<FunctionalDependency> jsonConverter = new JsonConverter<>();
     assertTrue(fileContent.contains(jsonConverter.toJsonString(expectedFd)));
@@ -233,7 +233,7 @@ public class ResultPrinterTest {
     File actualFile = new File(printer.getOutputFilePathPrefix() + ResultType.IND.getEnding());
     assertTrue(actualFile.exists());
 
-    String fileContent = Files.toString(actualFile, Charsets.UTF_8);
+    String fileContent = Files.readString(actualFile.toPath(), StandardCharsets.UTF_8);
 
     assertTrue(fileContent.contains(expectedInd.toString(printer.tableMapping, printer.columnMapping)));
 
@@ -266,7 +266,7 @@ public class ResultPrinterTest {
     File actualFile = new File(printer.getOutputFilePathPrefix() + ResultType.UCC.getEnding());
     assertTrue(actualFile.exists());
 
-    String fileContent = Files.toString(actualFile, Charsets.UTF_8);
+    String fileContent = Files.readString(actualFile.toPath(), StandardCharsets.UTF_8);
 
     assertTrue(fileContent.contains(expectedUcc.toString(printer.tableMapping, printer.columnMapping)));
 
@@ -300,7 +300,7 @@ public class ResultPrinterTest {
     File actualFile = new File(printer.getOutputFilePathPrefix() + ResultType.OD.getEnding());
     assertTrue(actualFile.exists());
 
-    String fileContent = Files.toString(actualFile, Charsets.UTF_8);
+    String fileContent = Files.readString(actualFile.toPath(), StandardCharsets.UTF_8);
 
     assertTrue(fileContent.contains(expectedOd.toString(printer.tableMapping, printer.columnMapping)));
 
@@ -335,7 +335,7 @@ public class ResultPrinterTest {
     File actualFile = new File(printer.getOutputFilePathPrefix() + ResultType.OD.getEnding());
     assertTrue(actualFile.exists());
 
-    String fileContent = Files.toString(actualFile, Charsets.UTF_8);
+    String fileContent = Files.readString(actualFile.toPath(), StandardCharsets.UTF_8);
 
     JsonConverter<OrderDependency> jsonConverter = new JsonConverter<>();
     assertTrue(fileContent.contains(jsonConverter.toJsonString(expectedOd)));
@@ -372,7 +372,7 @@ public class ResultPrinterTest {
     File actualFile = new File(printer.getOutputFilePathPrefix() + ResultType.DC.getEnding());
     assertTrue(actualFile.exists());
 
-    String fileContent = Files.toString(actualFile, Charsets.UTF_8);
+    String fileContent = Files.readString(actualFile.toPath(), StandardCharsets.UTF_8);
 
     JsonConverter<DenialConstraint> jsonConverter = new JsonConverter<>();
     assertTrue(fileContent.contains(jsonConverter.toJsonString(expectedDc)));

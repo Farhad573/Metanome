@@ -61,4 +61,19 @@ public class AlgorithmJarLoaderTest {
 
     algorithm.execute();
   }
+
+  @Test
+  public void missingJarProvidesDiagnostics() throws Exception {
+    AlgorithmJarLoader loader = new AlgorithmJarLoader();
+    try {
+      loader.loadAlgorithm("__missing__.jar");
+    } catch (IOException e) {
+      String msg = e.getMessage();
+      assertTrue("Should mention not found", msg.contains("Algorithm jar not found"));
+      assertTrue("Should include user.dir", msg.contains("user.dir"));
+      assertTrue("Should include availableJars", msg.contains("availableJars"));
+      return; // success
+    }
+    throw new AssertionError("Expected IOException for missing jar");
+  }
 }

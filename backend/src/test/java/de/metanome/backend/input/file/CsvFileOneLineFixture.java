@@ -26,7 +26,7 @@ import java.io.StringReader;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CsvFileOneLineFixture {
+public final class CsvFileOneLineFixture {
 
   protected char separator;
   protected char quoteChar;
