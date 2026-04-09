@@ -165,21 +165,87 @@ public class ResultReader<T extends Result> {
 
   public static Integer readCounterResultFromFile(String fileName)
     throws IOException {
+    return readCounterResultFromFile(fileName, null);
+  }
+
+  public static Integer readCounterResultFromFile(String fileName, ResultType resultType)
+    throws IOException {
     File resultFile = new File(fileName);
+    if (!resultFile.exists()) {
+      return 0;
+    }
+
+    try (BufferedReader br = new BufferedReader(new FileReader(resultFile))) {
+      String line;
+      boolean headerSeen = false;
+      while ((line = br.readLine()) != null) {
+        if (line.startsWith(ResultCounter.HEADER)) {
+          headerSeen = true;
+          continue;
+        }
+        if (headerSeen) {
+          int idx = line.lastIndexOf(":");
+          if (idx >= 0 && idx + 1 < line.length()) {
+            String numberPart = line.substring(idx + 1).trim();
+            if (!numberPart.isEmpty()) {
+              try {
+                return Integer.valueOf(numberPart);
+              } catch (NumberFormatException ignore) {
+                // fall back to structural counting below
+              }
+            }
+          }
+          break;
+        }
+      }
+    }
+
+    if (resultType != null) {
+      try {
+        return ResultReader.readResultsFromFile(fileName, resultType.getName()).size();
+      } catch (Exception ignore) {
+        // fall back to manual counting below
+      }
+    }
+
+    int count = 0;
+    boolean sawMarker = false;
+    boolean inResultsSection = false;
 
     try (BufferedReader br = new BufferedReader(new FileReader(resultFile))) {
       String line;
       while ((line = br.readLine()) != null) {
-        if (line.startsWith(ResultCounter.HEADER)) {
+        String trimmed = line.trim();
+        if (trimmed.isEmpty()) {
           continue;
         }
-  
-        return Integer.valueOf(line.split(": ")[1]);
+        if (trimmed.startsWith(ResultCounter.HEADER)) {
+          continue;
+        }
+        if (trimmed.startsWith(ResultPrinter.TABLE_MARKER) || trimmed.startsWith(ResultPrinter.COLUMN_MARKER)) {
+          sawMarker = true;
+          inResultsSection = false;
+          continue;
+        }
+        if (trimmed.startsWith(ResultPrinter.RESULT_MARKER)) {
+          sawMarker = true;
+          inResultsSection = true;
+          continue;
+        }
+        if (sawMarker) {
+          if (inResultsSection) {
+            count++;
+          }
+          continue;
+        }
+        count++;
       }
     }
-    return 0;
+
+    return count;
   }
 
+  @SuppressWarnings("unchecked")
   public List<T> readResultsFromFile(String fileName)
     throws IOException, NullPointerException, IndexOutOfBoundsException {
     File resultFile = new File(fileName);
