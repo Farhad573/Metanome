@@ -36,6 +36,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -74,6 +75,9 @@ public class ResultPostProcessor {
   public static void extractAndStoreResultsDataDependent(Execution execution)
     throws IOException, AlgorithmConfigurationException, InputGenerationException,
     InputIterationException, NullPointerException, IndexOutOfBoundsException {
+    if (execution == null) {
+      throw new IllegalArgumentException("Execution must not be null");
+    }
     extractAndStoreResults(execution.getResults(), execution.getInputs(), false);
   }
 
@@ -132,9 +136,12 @@ public class ResultPostProcessor {
     InputIterationException, NullPointerException, IndexOutOfBoundsException {
     ResultsStoreHolder.clearStores();
 
+  Set<Result> safeResults = (results != null) ? results : Collections.emptySet();
+  Collection<Input> safeInputs = (inputs != null) ? inputs : Collections.emptyList();
+
     // get input generators
     List<RelationalInputGenerator> inputGenerators = new ArrayList<>();
-    for (Input input : inputs) {
+    for (Input input : safeInputs) {
       if (input instanceof FileInput) {
         File currFile = new File(input.getName());
         if (currFile.isFile()) {
@@ -170,11 +177,41 @@ public class ResultPostProcessor {
     inputGenerators =
       usedDatabaseConnection ? new ArrayList<RelationalInputGenerator>() : inputGenerators;
 
-    for (de.metanome.backend.results_db.Result result : results) {
-      String fileName = result.getFileName();
-      String resultTypeName = result.getType().getName();
+    int successCount = 0;
+    List<String> loadErrors = new ArrayList<>();
 
-      analyzeAndStoreResults(fileName, resultTypeName, inputGenerators, dataIndependent);
+    for (de.metanome.backend.results_db.Result result : safeResults) {
+      String fileName = result.getFileName();
+      ResultType resolvedType = resolveResultType(result);
+      String resultTypeName = resolvedType != null
+        ? resolvedType.getName()
+        : (result != null ? result.getTypeName() : null);
+
+      if (resultTypeName == null || resultTypeName.trim().isEmpty()) {
+        String unknownLabel = fileName != null ? fileName : "<unknown file>";
+        loadErrors.add("Unknown result type for " + unknownLabel);
+        continue;
+      }
+
+      try {
+        analyzeAndStoreResults(fileName, resultTypeName, inputGenerators, dataIndependent);
+        successCount++;
+      } catch (Exception ex) {
+        String detail = resultTypeName + ": " + (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName());
+        loadErrors.add(detail);
+        ex.printStackTrace();
+      }
+    }
+
+    if (successCount == 0) {
+      String message = loadErrors.isEmpty()
+        ? "No result files could be processed for this execution."
+        : ("Failed to process execution results. " + loadErrors.get(0));
+      throw new RuntimeException(message);
+    }
+
+    if (!loadErrors.isEmpty()) {
+      System.out.println("Metanome: Skipped " + loadErrors.size() + " result file(s): " + String.join("; ", loadErrors));
     }
   }
 
@@ -453,5 +490,38 @@ public class ResultPostProcessor {
       resultsStore.store(rankingResults);
       ResultsStoreHolder.register(name, resultsStore);
     }
+  }
+
+  private static ResultType resolveResultType(de.metanome.backend.results_db.Result result) {
+    if (result == null) {
+      return null;
+    }
+    ResultType explicit = result.getType();
+    if (explicit != null) {
+      return explicit;
+    }
+
+    String name = result.getTypeName();
+    if (name != null) {
+      ResultType match = ResultType.asStream()
+        .filter(rt -> name.equalsIgnoreCase(rt.getName()))
+        .findFirst()
+        .orElse(null);
+      if (match != null) {
+        return match;
+      }
+    }
+
+    String fileName = result.getFileName();
+    if (fileName != null) {
+      String lower = fileName.toLowerCase();
+      for (ResultType type : ResultType.values()) {
+        if (lower.endsWith(type.getEnding().toLowerCase())) {
+          return type;
+        }
+      }
+    }
+
+    return null;
   }
 }
