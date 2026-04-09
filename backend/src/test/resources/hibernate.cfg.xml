@@ -70,6 +70,10 @@ limitations under the License.
         <mapping class="de.metanome.backend.results_db.ResultType"/>
         <mapping class="de.metanome.backend.results_db.ExecutionSetting"/>
 
+        <mapping class="de.metanome.backend.results_db.DpqlExecution"/>
+        <mapping class="de.metanome.backend.results_db.DpqlNormalizedTable"/>
+        <mapping class="de.metanome.backend.results_db.DpqlNormCell"/>
+
     </session-factory>
 
 </hibernate-configuration>

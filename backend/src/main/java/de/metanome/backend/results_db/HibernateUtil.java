@@ -85,6 +85,13 @@ public class HibernateUtil {
       tryExecuteAlter(session,
           "ALTER TABLE DPQLNORMCELL ALTER COLUMN VALUE SET DATA TYPE LONGVARCHAR");
 
+      // Switch the heavy DPQL tables from MEMORY (default) to CACHED so HSQLDB
+      // stores their data on disk instead of in the JVM heap.  This prevents
+      // OutOfMemoryError after many normalized DPQL executions.
+      tryExecuteAlter(session, "SET TABLE DPQLNORMCELL TYPE CACHED");
+      tryExecuteAlter(session, "SET TABLE DPQLNORMALIZEDTABLE TYPE CACHED");
+      tryExecuteAlter(session, "SET TABLE DPQLEXECUTION TYPE CACHED");
+
       session.getTransaction().commit();
     } catch (Exception ignored) {
       // Best-effort migration: older DBs may not have these tables yet, or syntax may differ.

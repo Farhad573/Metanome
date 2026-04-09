@@ -31,7 +31,7 @@ import java.util.*;
 /**
  * Calculates the rankings for functional dependency results.
  */
-public final class MultivaluedDependencyRanking extends Ranking {
+public class MultivaluedDependencyRanking extends Ranking {
 
   protected List<MultivaluedDependencyResult> results;
   protected Map<BitSet, PositionListIndex> PLIs;
@@ -48,7 +48,7 @@ public final class MultivaluedDependencyRanking extends Ranking {
   /**
    * The occurrence list stores how often a column occurs in the results.
    */
-  private void createOccurrenceList() {
+  protected void createOccurrenceList() {
     initializeOccurrenceList();
 
     for (MultivaluedDependencyResult result : this.results) {

@@ -60,6 +60,7 @@ public class DefaultFileInputGenerator implements FileInputGenerator {
    */
   public DefaultFileInputGenerator(ConfigurationSettingFileInput setting)
     throws AlgorithmConfigurationException {
+      System.out.println("inside DefaultFileInputGenerator constructor with setting, file name from setting: " + setting.getFileName());
     try {
       this.setInputFile(new File(setting.getFileName()));
     } catch (FileNotFoundException e) {

@@ -27,6 +27,7 @@ import de.metanome.backend.results_db.DatabaseConnection;
 import de.metanome.backend.results_db.FileInput;
 import de.metanome.backend.results_db.Input;
 import de.metanome.backend.results_db.TableInput;
+
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -96,8 +97,8 @@ public class InputToGeneratorConverter {
         String relativepath = path.substring(path.indexOf(classespath) + classespath.length());
         String classesFolder = resolveClassesFolder();
         if (classesFolder != null) {
-          File finalpath = new File(classesFolder, relativepath);
-          if (finalpath.exists()) return finalpath.getAbsolutePath();
+          File mapped = new File(classesFolder, relativepath);
+          if (mapped.exists()) return mapped.getAbsolutePath();
         }
       }
 
@@ -130,7 +131,7 @@ public class InputToGeneratorConverter {
   }
 
   /**
-   * resolves the absolute path to the application classes directory (typically {@code WEB-INF/classes})
+   * Resolves the absolute path to the application classes directory (typically {@code WEB-INF/classes})
    * based on the runtime location of {@link DefaultFileInputGenerator}.
    *
    * <p>The method inspects the code source URL of {@code DefaultFileInputGenerator}, converts it to a

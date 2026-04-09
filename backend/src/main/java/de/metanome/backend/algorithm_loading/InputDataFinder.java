@@ -16,9 +16,13 @@
 package de.metanome.backend.algorithm_loading;
 
 import de.metanome.backend.constants.Constants;
+import java.net.URL;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,14 +40,7 @@ public class InputDataFinder {
    * @throws UnsupportedEncodingException when file path is not utf-8 decoded
    */
   public File[] getAvailableFiles(boolean dir) throws UnsupportedEncodingException {
-    String pathToFolder = "";
-    try {
-      pathToFolder = Thread.currentThread().getContextClassLoader().getResource(Constants.INPUTDATA_RESOURCE_NAME).getPath();
-    } catch (NullPointerException e) {
-      // The input data folder does not exist
-      return new File[]{};
-    }
-
+    String pathToFolder = getFileDirectory();
     return retrieveCsvTsvFiles(pathToFolder, dir);
   }
 
@@ -54,13 +51,24 @@ public class InputDataFinder {
    */
 
   public String getFileDirectory() {
-    String pathToFolder = "";
-    try {
-      pathToFolder = Thread.currentThread().getContextClassLoader().getResource(Constants.INPUTDATA_RESOURCE_NAME).getPath();
-    } catch (NullPointerException e) {
-      throw new NullPointerException("Input Data Directory does not exist");
+    System.out.println("inside getFileDirectory");
+    URL resource = Thread.currentThread().getContextClassLoader().getResource(Constants.INPUTDATA_RESOURCE_NAME);
+    if (resource == null) {
+      throw new IllegalStateException("Input data directory is missing!");
     }
-    return pathToFolder;
+
+    if (!"file".equalsIgnoreCase(resource.getProtocol())) {
+      throw new IllegalStateException("Input data directory is not a writable filesystem path: " + resource);
+    }
+
+    try {
+      System.out.println("Input data directory resolved from resource URI: " + resource.toURI().toString());
+      return Paths.get(resource.toURI()).toString();
+    } catch (URISyntaxException | RuntimeException ignore) {
+      // Fall back to URL path if URI conversion fails.
+      System.out.println("Failed to convert input data directory resource URI to path, falling back to URL path: " + resource.getPath());
+      return resource.getPath();
+    }
   }
 
   /**

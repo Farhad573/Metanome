@@ -19,13 +19,18 @@ import de.metanome.algorithm_integration.Algorithm;
 import de.metanome.backend.constants.Constants;
 import org.apache.commons.lang3.ClassUtils;
 
+import com.ibm.db2.jcc.am.s;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -49,13 +54,7 @@ public class AlgorithmFinder {
 
     LinkedList<String> availableAlgorithms = new LinkedList<>();
 
-    String pathToFolder = "";
-    try {
-        pathToFolder = Thread.currentThread().getContextClassLoader().getResource(Constants.ALGORITHMS_RESOURCE_NAME).getPath();
-    } catch (NullPointerException e) {
-      // The algorithm folder does not exist
-      return new String[]{};
-    }
+    String pathToFolder = getAlgorithmDirectory();
     File[] jarFiles = retrieveJarFiles(pathToFolder);
 
     for (File jarFile : jarFiles) {
@@ -75,15 +74,37 @@ public class AlgorithmFinder {
    * @return String with path to algorithm directory
    */
   public String getAlgorithmDirectory() {
-    String pathToFolder = "";
-    try {
-      pathToFolder = Thread.currentThread().getContextClassLoader().getResource(Constants.ALGORITHMS_RESOURCE_NAME).getPath();
-    } catch (NullPointerException e) {
-      // The algorithm folder does not exist
-      throw new NullPointerException("Algorithm directory is missing!");
+    System.out.println("inside getAlgorithmDirectory");
+    URL resource = Thread.currentThread().getContextClassLoader().getResource(Constants.ALGORITHMS_RESOURCE_NAME);
+    if (resource == null) {
+      throw new IllegalStateException("Algorithm directory is missing!");
     }
-    return pathToFolder;
 
+    if (!"file".equalsIgnoreCase(resource.getProtocol())) {
+      throw new IllegalStateException("Algorithm directory is not a writable filesystem path: " + resource);
+    }
+
+    try {
+      System.out.println("resource URI before normalizePath: " + resource.toURI().toString());
+      String normalizedPath = normalizePath(resource.toURI().toString());
+      System.out.println("normalized path: " + normalizedPath);
+      return normalizePath(Paths.get(resource.toURI()).toString());
+    } catch (URISyntaxException | RuntimeException ignore) {
+      System.out.println("Failed to get algorithm directory path from URI, falling back to resource path: " + ignore.getMessage());
+      System.out.println("resource path before normalizePath: " + resource.getPath());
+      return normalizePath(resource.getPath());
+    }
+  }
+
+  private static String normalizePath(String raw) {
+    if (raw == null) {
+      return null;
+    }
+    String path = raw;
+    if (System.getProperty("os.name").toLowerCase().contains("win") && path.matches("^/[A-Za-z]:/.*")) {
+      path = path.substring(1);
+    }
+    return path;
   }
   /**
    * @param pathToFolder Path to search for jar files
@@ -116,16 +137,27 @@ public class AlgorithmFinder {
    */
   public Set<Class<?>> getAlgorithmInterfaces(String algorithmJarFileName)
     throws IOException, ClassNotFoundException {
-
-    String jarFilePath = "";
-    try {
-      jarFilePath = Thread.currentThread().getContextClassLoader().getResource(Constants.ALGORITHMS_RESOURCE_NAME + Constants.FILE_SEPARATOR + algorithmJarFileName).getFile();
-    } catch (NullPointerException e) {
-      // The algorithm folder does not exist
-      return new HashSet<>();
+    System.out.println("inside getAlgorithmInterfaces with file name: " + algorithmJarFileName);
+    // Prefer classpath resource (Docker maps algorithms volume into WEB-INF/classes/algorithms)
+    URL resource = Thread.currentThread().getContextClassLoader().getResource(
+      Constants.ALGORITHMS_RESOURCE_NAME + Constants.FILE_SEPARATOR + algorithmJarFileName);
+    File file;
+    if (resource != null && "file".equalsIgnoreCase(resource.getProtocol())) {
+      System.out.println("Found algorithm jar as classpath resource: " + resource);
+      String jarFilePath = resource.getFile();
+      System.out.println( "jar file path before normalizePath: " + jarFilePath);
+      System.out.println( "jar file path after normalizePath: " + normalizePath(jarFilePath));
+      file = new File(URLDecoder.decode(normalizePath(jarFilePath), Constants.FILE_ENCODING));
+    } else {
+      // Fallback to algorithms directory path and resolve file name
+      System.out.println("Algorithm jar not found as classpath resource, falling back to algorithm directory: " + algorithmJarFileName);
+      String dir = getAlgorithmDirectory();
+      System.out.println("Algorithm directory before decode: " + dir);
+      String decodedDir = URLDecoder.decode(dir, Constants.FILE_ENCODING);
+      System.out.println("Algorithm directory after decode: " + decodedDir);
+      System.out.println("decoded and normalized Algorithm jar file path: " + Paths.get(decodedDir).resolve(algorithmJarFileName).normalize().toString());
+      file = Paths.get(decodedDir).resolve(algorithmJarFileName).normalize().toFile();
     }
-
-    File file = new File(URLDecoder.decode(jarFilePath, Constants.FILE_ENCODING));
 
     return getAlgorithmInterfaces(file);
   }

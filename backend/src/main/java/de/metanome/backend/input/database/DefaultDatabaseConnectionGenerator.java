@@ -1,17 +1,15 @@
 /**
  * Copyright 2015-2016 by Metanome Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package de.metanome.backend.input.database;
 
@@ -57,12 +55,10 @@ public class DefaultDatabaseConnectionGenerator implements DatabaseConnectionGen
   /**
    * Exists for tests.
    */
-  protected DefaultDatabaseConnectionGenerator() {
-  }
+  protected DefaultDatabaseConnectionGenerator() {}
 
   public DefaultDatabaseConnectionGenerator(String dbUrl, String userName, String password,
-                                            DbSystem system)
-    throws AlgorithmConfigurationException {
+      DbSystem system) throws AlgorithmConfigurationException {
     this.dbUrl = dbUrl;
     this.userName = userName;
     this.password = password;
@@ -70,7 +66,7 @@ public class DefaultDatabaseConnectionGenerator implements DatabaseConnectionGen
   }
 
   public DefaultDatabaseConnectionGenerator(ConfigurationSettingDatabaseConnection setting)
-    throws AlgorithmConfigurationException {
+      throws AlgorithmConfigurationException {
     this(setting.getDbUrl(), setting.getUsername(), setting.getPassword(), setting.getSystem());
   }
 
@@ -85,7 +81,7 @@ public class DefaultDatabaseConnectionGenerator implements DatabaseConnectionGen
 
   @Override
   public RelationalInput generateRelationalInputFromSql(String queryString, String relationName)
-    throws InputGenerationException, AlgorithmConfigurationException {
+      throws InputGenerationException, AlgorithmConfigurationException {
 
     ResultSet resultSet = executeQuery(queryString);
 
@@ -104,17 +100,21 @@ public class DefaultDatabaseConnectionGenerator implements DatabaseConnectionGen
    *
    * @param queryString the query string to execute
    * @return associated {@link ResultSet}
-   * @throws de.metanome.algorithm_integration.input.InputGenerationException if sql statement could not be created or executed
-   * @throws de.metanome.algorithm_integration.AlgorithmConfigurationException if configuration is not correct
+   * @throws de.metanome.algorithm_integration.input.InputGenerationException if sql statement could
+   *         not be created or executed
+   * @throws de.metanome.algorithm_integration.AlgorithmConfigurationException if configuration is
+   *         not correct
    */
-  protected ResultSet executeQuery(String queryString) throws InputGenerationException, AlgorithmConfigurationException {
+  protected ResultSet executeQuery(String queryString)
+      throws InputGenerationException, AlgorithmConfigurationException {
     if (this.dbConnection == null) {
       this.connect();
     }
 
     Statement sqlStatement;
     try {
-      sqlStatement = this.dbConnection.createStatement(getResultSetType(), getResultSetConcurrency());
+      sqlStatement =
+          this.dbConnection.createStatement(getResultSetType(), getResultSetConcurrency());
       sqlStatement.setFetchSize(getFetchSize());
       this.statements.add(sqlStatement);
     } catch (SQLException e) {
@@ -131,7 +131,8 @@ public class DefaultDatabaseConnectionGenerator implements DatabaseConnectionGen
   }
 
   @Override
-  public ResultSet generateResultSetFromSql(String queryString) throws InputGenerationException, AlgorithmConfigurationException {
+  public ResultSet generateResultSetFromSql(String queryString)
+      throws InputGenerationException, AlgorithmConfigurationException {
     return executeQuery(queryString);
   }
 

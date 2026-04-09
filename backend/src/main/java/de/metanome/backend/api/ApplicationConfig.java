@@ -15,14 +15,9 @@
  */
 package de.metanome.backend.api;
 
-
-
-import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
-
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.ws.rs.core.Application;
 
 // Imports for Multi-Part file Upload in Jersey
@@ -37,7 +32,7 @@ public class ApplicationConfig extends Application {
 
     //Classes for Multipart Upload
     classes.add(MultiPartFeature.class);
-    classes.add(de.metanome.backend.dpql.DpqlResource.class);
+    classes.add(de.metanome.backend.resources.DpqlResource.class);
     return classes;
   }
 }

@@ -1,7 +1,6 @@
 package de.metanome.backend.dpql;
 
 import de.metanome.backend.dpql.result.DiskResultCollector;
-import de.metanome.backend.dpql.result.EngineResultCollector;
 import de.metanome.backend.dpql.result.ResultReader;
 import de.metanome.backend.dpql.result.CancelAwareResultReceiver;
 import de.metanome.backend.engine_loading.EngineJarLoader;
@@ -48,11 +47,6 @@ import java.util.Set;
 
 public class DpqlService {
     private static final String RESULTS_DIR = "results"; // Relative to backend working dir
-
-    // Guardrail for /dpql/query/full: this endpoint is inherently in-memory.
-    // Prefer /dpql/execute + paging for large results.
-    private static final long FULL_QUERY_MAX_TOTAL_ROWS = 50_000;
-    private static final long FULL_QUERY_MAX_TOTAL_CELLS = 2_000_000;
 
     private final EngineJarLoader engineJarLoader = new EngineJarLoader();
     private final ObjectMapper mapper = new ObjectMapper();
@@ -1181,28 +1175,6 @@ public class DpqlService {
             return null;
         }
         return reader.readTablePage(tableId, offset, limit, search);
-    }
-
-    public DpqlQueryResponseDto executeFull(DpqlQuerryRequest request)
-            throws EngineException, EngineResultReceiverException {
-        EngineResult engineResult = executeInternal(request);
-        return DpqlResponseMapper.fromEngineResult(engineResult);
-    }
-
-    private EngineResult executeInternal(DpqlQuerryRequest request)
-            throws EngineException, EngineResultReceiverException {
-        if (request == null || request.getQuery() == null || request.getQuery().isEmpty()) {
-            throw new IllegalArgumentException("DPQL query must not be empty");
-        }
-
-        EngineExecutionContext ctx = createExecutionContext(request);
-        prepareDatasetsFromDb(request.getQuery(), ctx);
-
-        // /dpql/query/full returns the full result payload in JSON and thus must be bounded.
-        EngineResultCollector collector =
-                new EngineResultCollector(FULL_QUERY_MAX_TOTAL_ROWS, FULL_QUERY_MAX_TOTAL_CELLS);
-        executeWithSelectedEngine(request, ctx, collector);
-        return collector.toEngineResult();
     }
 
     private void persistDpqlExecutionFromDisk(String executionId, DpqlQuerryRequest request,

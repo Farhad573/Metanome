@@ -15,8 +15,8 @@
  */
 package de.metanome.backend.input.database;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.ResultSet;
 
 import de.metanome.algorithm_integration.AlgorithmConfigurationException;
 import de.metanome.algorithm_integration.configuration.ConfigurationSettingTableInput;

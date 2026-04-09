@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * Calculates the rankings for conditional unique column combination results.
  */
-public final class ConditionalUniqueColumnCombinationRanking extends Ranking {
+public class ConditionalUniqueColumnCombinationRanking extends Ranking {
 
   protected List<ConditionalUniqueColumnCombinationResult> results;
 
@@ -44,7 +44,7 @@ public final class ConditionalUniqueColumnCombinationRanking extends Ranking {
   /**
    * The occurrence list stores how often a column occurs in the results.
    */
-  private void createOccurrenceList() {
+  protected void createOccurrenceList() {
     initializeOccurrenceList();
 
     for (ConditionalUniqueColumnCombinationResult result : this.results) {

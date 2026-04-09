@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Calculates the rankings for order dependency results.
  */
-public final class OrderDependencyRanking extends Ranking {
+public class OrderDependencyRanking extends Ranking {
 
   protected List<OrderDependencyResult> results;
 
@@ -43,7 +43,7 @@ public final class OrderDependencyRanking extends Ranking {
   /**
    * The occurrence list stores how often a column occurs in the results.
    */
-  private void createOccurrenceList() {
+  protected void createOccurrenceList() {
     initializeOccurrenceList();
 
     for (OrderDependencyResult result : this.results) {

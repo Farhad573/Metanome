@@ -1,17 +1,15 @@
 /**
  * Copyright 2015-2016 by Metanome Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package de.metanome.backend.algorithm_execution;
 
@@ -45,22 +43,44 @@ import java.util.List;
  */
 public class AlgorithmExecution {
 
+  // private static String resolveInputPath(Input input) {
+  //   String path = input.getName();
+  //   System.out.println("Resolving input path for input: " + path);
+  //   if (input == null) {
+  //     return null;
+  //   }
+  //   if (input instanceof FileInput) {
+  //     System.out.println("Input is FileInput, checking fileName property");
+  //     String fileName = ((FileInput) input).getFileName();
+  //     if (fileName != null && !fileName.trim().isEmpty()) {
+  //       System.out.println("Using fileName property: " + fileName);
+  //       return fileName;
+  //     }
+  //   }
+  //   System.out.println("Using name property: " + path);
+  //   return input.getName();
+  // }
+
   /**
    * Extract the column names from the input to forward them later on to the result receiver.
    *
    * @param inputs the inputs
    * @return a list of column names
-   * @throws AlgorithmConfigurationException if the input could not be converted into an input generator
+   * @throws AlgorithmConfigurationException if the input could not be converted into an input
+   *         generator
    * @throws InputGenerationException if no relational input could be generated
    */
-  protected static List<ColumnIdentifier> extractColumnNames(List<Input> inputs) throws AlgorithmConfigurationException, InputGenerationException{
+  protected static List<ColumnIdentifier> extractColumnNames(List<Input> inputs)
+      throws AlgorithmConfigurationException, InputGenerationException {
     List<RelationalInputGenerator> inputGenerators = new ArrayList<>();
+    System.out.println("inside extractColumnNames, number of inputs: " + inputs.size());
     for (Input input : inputs) {
       if (input instanceof FileInput) {
         // to fix problem of file uploaded inputfiles not having path and just name, get the path from the fileName property of the FileInput
         FileInput fileInput = (FileInput) input;
         ConfigurationSettingFileInput setting = InputToGeneratorConverter.convertInputToSetting(fileInput);
         String inputPath = setting.getFileName();
+        System.out.println("Processing FileInput, resolved input path: " + inputPath);
         // avoid nullpointer exeption
         File currFile = new File(inputPath != null ? inputPath : "");
         if (currFile.isFile()) {
@@ -89,6 +109,7 @@ public class AlgorithmExecution {
             }
           }
         } else {
+          System.out.println("FileInput path is not a file or directory, trying to convert input to generator directly");
           RelationalInputGenerator relInpGen = InputToGeneratorConverter.convertInput(fileInput);
           if (relInpGen != null) {
             inputGenerators.add(relInpGen);
@@ -128,11 +149,12 @@ public class AlgorithmExecution {
    * @param executionSetting the execution setting
    * @param acceptedColumns the column identifiers of the accepted columns
    * @return an {@link de.metanome.backend.algorithm_execution.AlgorithmExecutor}
-   * @throws java.io.FileNotFoundException        when the result files cannot be opened
+   * @throws java.io.FileNotFoundException when the result files cannot be opened
    * @throws java.io.UnsupportedEncodingException when the temp files cannot be opened
    */
-  protected static AlgorithmExecutor buildExecutor(ExecutionSetting executionSetting, List<ColumnIdentifier> acceptedColumns)
-    throws FileNotFoundException, UnsupportedEncodingException {
+  protected static AlgorithmExecutor buildExecutor(ExecutionSetting executionSetting,
+      List<ColumnIdentifier> acceptedColumns)
+      throws FileNotFoundException, UnsupportedEncodingException {
     FileGenerator fileGenerator = new TempFileGenerator();
     String identifier = executionSetting.getExecutionIdentifier();
 
@@ -145,8 +167,7 @@ public class AlgorithmExecution {
       resultReceiver = new ResultPrinter(identifier, acceptedColumns);
     }
 
-    AlgorithmExecutor executor =
-      new AlgorithmExecutor(resultReceiver, fileGenerator);
+    AlgorithmExecutor executor = new AlgorithmExecutor(resultReceiver, fileGenerator);
     executor.setResultPathPrefix(resultReceiver.getOutputFilePathPrefix());
     return executor;
   }
@@ -157,11 +178,13 @@ public class AlgorithmExecution {
    * @param parameterValuesJson List of parameter values in json format
    * @return a list of all configuration values
    */
-  public static List<ConfigurationValue> parseConfigurationValues(List<String> parameterValuesJson) {
+  public static List<ConfigurationValue> parseConfigurationValues(
+      List<String> parameterValuesJson) {
     JsonConverter<ConfigurationValue> jsonConverter = new JsonConverter<>();
     jsonConverter.addMixIn(FileInputGenerator.class, FileInputGeneratorMixIn.class);
     jsonConverter.addMixIn(TableInputGenerator.class, TableInputGeneratorMixIn.class);
-    jsonConverter.addMixIn(DatabaseConnectionGenerator.class, DatabaseConnectionGeneratorMixIn.class);
+    jsonConverter.addMixIn(DatabaseConnectionGenerator.class,
+        DatabaseConnectionGeneratorMixIn.class);
     jsonConverter.addMixIn(RelationalInputGenerator.class, RelationalInputGeneratorMixIn.class);
     jsonConverter.addMixIn(ConfigurationValue.class, ConfigurationValueMixIn.class);
 
@@ -216,23 +239,17 @@ public class AlgorithmExecution {
     // Get the execution setting from hibernate
     ExecutionSetting executionSetting;
     try {
-      List<ExecutionSetting> settings = HibernateUtil.queryCriteria(ExecutionSetting.class,
-        HibernateUtil.eq("executionIdentifier", executionIdentifier));
-      if (settings.isEmpty()) {
-        System.err.println("No ExecutionSetting found for executionIdentifier=" + executionIdentifier);
-        System.exit(1);
-        return;
-      }
-      executionSetting = settings.get(0);
+      executionSetting = HibernateUtil.queryCriteria(ExecutionSetting.class,
+          HibernateUtil.eq("executionIdentifier", executionIdentifier)).get(0);
     } catch (EntityStorageException e) {
-      System.err.println("Failed to load ExecutionSetting for executionIdentifier=" + executionIdentifier);
       e.printStackTrace();
       System.exit(1);
       return;
     }
 
     // Parse the parameters
-    List<ConfigurationValue> parameters = parseConfigurationValues(executionSetting.getParameterValuesJson());
+    List<ConfigurationValue> parameters =
+        parseConfigurationValues(executionSetting.getParameterValuesJson());
     List<Input> inputs = parseInputs(executionSetting.getInputsJson());
 
     try {
@@ -241,8 +258,7 @@ public class AlgorithmExecution {
 
       // Get the algorithm executor
       AlgorithmExecutor executor = buildExecutor(executionSetting, columnNames);
-      executor
-        .executeAlgorithm(algorithm, parameters, inputs, executionIdentifier,
+      executor.executeAlgorithm(algorithm, parameters, inputs, executionIdentifier,
           executionSetting);
 
       executor.close();
