@@ -47,10 +47,9 @@ limitations under the License.
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <release>21</release>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
                     <compilerArgument>-Xlint:all</compilerArgument>
@@ -88,70 +87,90 @@ limitations under the License.
                                 <artifactItem>
                                     <groupId>de.metanome</groupId>
                                     <artifactId>example_basic_stat_algorithm</artifactId>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <type>jar</type>
+                                    <destFileName>example_basic_stat_algorithm.jar</destFileName>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>src/test/resources/algorithms</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.metanome</groupId>
                                     <artifactId>example_fd_algorithm</artifactId>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <type>jar</type>
+                                    <destFileName>example_fd_algorithm.jar</destFileName>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>src/test/resources/algorithms</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.metanome</groupId>
                                     <artifactId>example_cid_algorithm</artifactId>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <type>jar</type>
+                                    <destFileName>example_cid_algorithm.jar</destFileName>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>src/test/resources/algorithms</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.metanome</groupId>
                                     <artifactId>example_ind_algorithm</artifactId>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <type>jar</type>
+                                    <destFileName>example_ind_algorithm.jar</destFileName>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>src/test/resources/algorithms</outputDirectory>
-                                </artifactItem>                                
+                                </artifactItem>
                                 <artifactItem>
                                     <groupId>de.metanome</groupId>
                                     <artifactId>example_od_algorithm</artifactId>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <type>jar</type>
+                                    <destFileName>example_od_algorithm.jar</destFileName>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>src/test/resources/algorithms</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.metanome</groupId>
                                     <artifactId>example_indirect_interfaces_algorithm</artifactId>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <type>jar</type>
+                                    <destFileName>example_indirect_interfaces_algorithm.jar</destFileName>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>src/test/resources/algorithms</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.metanome</groupId>
                                     <artifactId>example_relational_input_algorithm</artifactId>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <type>jar</type>
+                                    <destFileName>example_relational_input_algorithm.jar</destFileName>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>src/test/resources/algorithms</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.metanome</groupId>
                                     <artifactId>example_ucc_algorithm</artifactId>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <type>jar</type>
+                                    <destFileName>example_ucc_algorithm.jar</destFileName>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>src/test/resources/algorithms</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.metanome</groupId>
                                     <artifactId>example_holistic_algorithm</artifactId>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <type>jar</type>
+                                    <destFileName>example_holistic_algorithm.jar</destFileName>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>src/test/resources/algorithms</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.metanome</groupId>
                                     <artifactId>example_wrong_bootstrap_algorithm</artifactId>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <type>jar</type>
+                                    <destFileName>example_wrong_bootstrap_algorithm.jar</destFileName>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>src/test/resources/algorithms</outputDirectory>
                                 </artifactItem>
@@ -216,6 +235,12 @@ limitations under the License.
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.9.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
         </dependency>
@@ -252,6 +277,11 @@ limitations under the License.
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.18.4</version>
+        </dependency>
+        <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
         </dependency>
@@ -270,6 +300,10 @@ limitations under the License.
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.test-framework</groupId>
@@ -372,26 +406,39 @@ limitations under the License.
             <artifactId>fastutil</artifactId>
         </dependency>
 
-        <!-- javax.xml.bind dependencies (deprecated in jdk 11) -->
+        <!-- JAXB (javax.*) for Java 11+ -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>4.0.2</version>
         </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
-        <dependency>
+        <!-- <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>4.0.5</version>
+        </dependency> -->
+        <!-- <dependency>
             <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-        </dependency>
+            <artifactId>javax.activation-api</artifactId>
+        </dependency> -->
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-osgi</artifactId>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+        </dependency>
+       <dependency>
+            <groupId>de.metanome</groupId>
+            <artifactId>engine_integration</artifactId>
+           <version>1.2-SNAPSHOT</version>
+       </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-grizzly2-http</artifactId>
+            <version>${jersey.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
