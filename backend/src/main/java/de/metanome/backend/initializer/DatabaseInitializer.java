@@ -143,4 +143,5 @@ public class DatabaseInitializer implements ServletContextListener {
   public void contextDestroyed(ServletContextEvent servletContextEvent) {
     server.shutdown();
   }
+
 }

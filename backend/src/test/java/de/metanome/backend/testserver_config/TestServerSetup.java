@@ -5,7 +5,7 @@ import de.metanome.backend.api.CORSResponseFilter;
 import de.metanome.backend.initializer.DatabaseInitializer;
 
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.filter.LoggingFilter;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -14,6 +14,9 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
 import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class to setup TestServer for IntegrationTests usage can be seen in
@@ -25,7 +28,8 @@ public class TestServerSetup extends JerseyTest {
     @Override
     protected void configureClient(ClientConfig config) {
         config.register(MultiPartFeature.class);
-        config.register(LoggingFilter.class);
+        config.register(new LoggingFeature(Logger.getLogger(TestServerSetup.class.getName()), Level.INFO,
+                LoggingFeature.Verbosity.PAYLOAD_ANY, 8192));
     }
 
     @Override

@@ -1,17 +1,15 @@
 /**
  * Copyright 2014-2016 by Metanome Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package de.metanome.backend.results_db;
 
@@ -20,13 +18,18 @@ import org.hamcrest.collection.IsIterableContainingInAnyOrder;
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Restrictions;
 import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Test for {@link HibernateUtil}
@@ -36,8 +39,9 @@ import static org.junit.Assert.*;
 public class HibernateUtilTest {
 
   /**
-   * Test method for {@link HibernateUtil#getSessionFactory()} <p/> {@link SessionFactory} should be
-   * singleton.
+   * Test method for {@link HibernateUtil#getSessionFactory()}
+   * <p/>
+   * {@link SessionFactory} should be singleton.
    */
   @Test
   public void testGetSessionFactory() {
@@ -46,8 +50,9 @@ public class HibernateUtilTest {
   }
 
   /**
-   * Test method for {@link HibernateUtil#openNewSession()} <p/> Fresh sessions should be connected
-   * and open.
+   * Test method for {@link HibernateUtil#openNewSession()}
+   * <p/>
+   * Fresh sessions should be connected and open.
    */
   @Test
   public void testOpenNewSession() {
@@ -58,9 +63,10 @@ public class HibernateUtilTest {
   }
 
   /**
-   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#store(Object)} <p/> When
-   * trying to store Objects missing the {@link javax.persistence.Entity} annotation an {@link
-   * de.metanome.backend.results_db.EntityStorageException} will be thrown.
+   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#store(Object)}
+   * <p/>
+   * When trying to store Objects missing the {@link jakarta.persistence.Entity} annotation an
+   * {@link de.metanome.backend.results_db.EntityStorageException} will be thrown.
    */
   @Test
   public void testStoreFailNonEntity() {
@@ -82,10 +88,12 @@ public class HibernateUtilTest {
   }
 
   /**
-   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#retrieve(Class,
-   * java.io.Serializable)} <p/> When trying to retrieve entities of a class that is missing the
-   * {@link javax.persistence.Entity} annotation an {@link de.metanome.backend.results_db.EntityStorageException}
-   * will be thrown.
+   * Test method for
+   * {@link de.metanome.backend.results_db.HibernateUtil#retrieve(Class, java.io.Serializable)}
+   * <p/>
+   * When trying to retrieve entities of a class that is missing the
+   * {@link jakarta.persistence.Entity} annotation an
+   * {@link de.metanome.backend.results_db.EntityStorageException} will be thrown.
    */
   @Test
   public void testRetrieveFailNonEntity() {
@@ -106,8 +114,9 @@ public class HibernateUtilTest {
   }
 
   /**
-   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#store(Object)} and {@link
-   * de.metanome.backend.results_db.HibernateUtil#retrieve(Class, java.io.Serializable)} <p/>
+   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#store(Object)} and
+   * {@link de.metanome.backend.results_db.HibernateUtil#retrieve(Class, java.io.Serializable)}
+   * <p/>
    * Entities should be storable and retrievable.
    */
   @Test
@@ -120,9 +129,8 @@ public class HibernateUtilTest {
 
     // Execute functionality
     HibernateUtil.store(expectedAlgorithm);
-    Algorithm
-      actualAlgorithm =
-      (Algorithm) HibernateUtil.retrieve(Algorithm.class, expectedAlgorithm.getId());
+    Algorithm actualAlgorithm =
+        (Algorithm) HibernateUtil.retrieve(Algorithm.class, expectedAlgorithm.getId());
 
     // Check result
     assertEquals(expectedAlgorithm, actualAlgorithm);
@@ -132,7 +140,7 @@ public class HibernateUtilTest {
   }
 
   /**
-   * Test method for  {@link de.metanome.backend.results_db.HibernateUtil#delete(Object)}
+   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#delete(Object)}
    * <p/>
    * Entities should be deletable from the database.
    */
@@ -147,7 +155,7 @@ public class HibernateUtilTest {
 
     // Check precondition
     Algorithm actualAlgorithm =
-      (Algorithm) HibernateUtil.retrieve(Algorithm.class, expectedAlgorithm.getId());
+        (Algorithm) HibernateUtil.retrieve(Algorithm.class, expectedAlgorithm.getId());
     assertEquals(expectedAlgorithm, actualAlgorithm);
 
     // Execute functionality
@@ -161,10 +169,11 @@ public class HibernateUtilTest {
   }
 
   /**
-   * Test method for  {@link de.metanome.backend.results_db.HibernateUtil#delete(Object)}
+   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#delete(Object)}
    * <p/>
-   * When trying to delete entities of a class that is missing the {@link javax.persistence.Entity}
-   * annotation an {@link de.metanome.backend.results_db.EntityStorageException} should be thrown.
+   * When trying to delete entities of a class that is missing the
+   * {@link jakarta.persistence.Entity} annotation an
+   * {@link de.metanome.backend.results_db.EntityStorageException} should be thrown.
    */
   @Test
   public void testDeleteNonEntity() {
@@ -185,7 +194,7 @@ public class HibernateUtilTest {
   }
 
   /**
-   * Test method for  {@link de.metanome.backend.results_db.HibernateUtil#delete(Object)}
+   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#delete(Object)}
    * <p/>
    * Deleting entities that have not been stored yet should just be transparent (no exception,
    * nothing deleted).
@@ -227,16 +236,18 @@ public class HibernateUtilTest {
 
     // Check result
     assertThat(actualAlgorithms,
-      IsIterableContainingInOrder.contains(expectedAlgorithm1, expectedAlgorithm2));
+        IsIterableContainingInOrder.contains(expectedAlgorithm1, expectedAlgorithm2));
 
     // Cleanup
     HibernateUtil.clear();
   }
 
   /**
-   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#queryCriteria(Class,
-   * org.hibernate.criterion.Criterion...)} <p/> When querying for entities without adding any
-   * criteria, all entities of the correct type should be returned.
+   * Test method for
+   * {@link de.metanome.backend.results_db.HibernateUtil#queryCriteria(Class, de.metanome.backend.results_db.HibernateUtil.PropertyFilter...)}
+   * <p/>
+   * When querying for entities without adding any criteria, all entities of the correct type should
+   * be returned.
    */
   @Test
   @SuppressWarnings(Constants.SUPPRESS_WARNINGS_UNCHECKED)
@@ -251,19 +262,22 @@ public class HibernateUtilTest {
     }
 
     // Execute functionality
-    List<Algorithm> actualAlgorithms = (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class);
+    List<Algorithm> actualAlgorithms =
+        (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class);
 
     // Check result
     assertThat(actualAlgorithms,
-      IsIterableContainingInAnyOrder.containsInAnyOrder(expectedAlgorithms));
+        IsIterableContainingInAnyOrder.containsInAnyOrder(expectedAlgorithms));
 
     // Cleanup
     HibernateUtil.clear();
   }
 
   /**
-   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#queryCriteria(Class,
-   * org.hibernate.criterion.Criterion...)} <p/> The resulting entities should match the criteria.
+   * Test method for
+   * {@link de.metanome.backend.results_db.HibernateUtil#queryCriteria(Class, de.metanome.backend.results_db.HibernateUtil.PropertyFilter...)}
+   * <p/>
+   * The resulting entities should match the criteria.
    */
   @Test
   @SuppressWarnings(Constants.SUPPRESS_WARNINGS_UNCHECKED)
@@ -272,31 +286,31 @@ public class HibernateUtilTest {
     HibernateUtil.clear();
 
     // Expected values
-    Algorithm expectedAlgorithm = new Algorithm("some path")
-      .setFd(true);
+    Algorithm expectedAlgorithm = new Algorithm("some path").setFd(true);
     Algorithm otherAlgorithm = new Algorithm("some other path");
 
     HibernateUtil.store(expectedAlgorithm);
     HibernateUtil.store(otherAlgorithm);
 
     // Execute functionality
-    Criterion onlyFdAlgorithms = Restrictions.eq(AlgorithmType.FD.getAbbreviation(), true);
-    List<Algorithm>
-      actualAlgorithms =
-      (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class, onlyFdAlgorithms);
+    HibernateUtil.PropertyFilter onlyFdAlgorithms =
+        HibernateUtil.eq(AlgorithmType.FD.getAbbreviation(), true);
+    List<Algorithm> actualAlgorithms =
+        (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class, onlyFdAlgorithms);
 
     // Check result
     assertThat(actualAlgorithms,
-      IsIterableContainingInAnyOrder.containsInAnyOrder(expectedAlgorithm));
+        IsIterableContainingInAnyOrder.containsInAnyOrder(expectedAlgorithm));
 
     // Cleanup
     HibernateUtil.clear();
   }
 
   /**
-   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#queryCriteria(Class,
-   * org.hibernate.criterion.Criterion...)} <p/> All results should match all the supplied criteria
-   * at once.
+   * Test method for
+   * {@link de.metanome.backend.results_db.HibernateUtil#queryCriteria(Class, de.metanome.backend.results_db.HibernateUtil.PropertyFilter...)}
+   * <p/>
+   * All results should match all the supplied criteria at once.
    */
   @Test
   @SuppressWarnings(Constants.SUPPRESS_WARNINGS_UNCHECKED)
@@ -305,35 +319,34 @@ public class HibernateUtilTest {
     HibernateUtil.clear();
 
     // Expected values
-    Algorithm expectedAlgorithm = new Algorithm("some path")
-      .setFd(true)
-      .setUcc(true);
-    Algorithm otherAlgorithm = new Algorithm("some other path")
-      .setFd(true);
+    Algorithm expectedAlgorithm = new Algorithm("some path").setFd(true).setUcc(true);
+    Algorithm otherAlgorithm = new Algorithm("some other path").setFd(true);
 
     HibernateUtil.store(expectedAlgorithm);
     HibernateUtil.store(otherAlgorithm);
 
     // Execute functionality
-    Criterion onlyFdAlgorithms = Restrictions.eq(AlgorithmType.FD.getAbbreviation(), true);
-    Criterion onlyUccAlgorithms = Restrictions.eq(AlgorithmType.UCC.getAbbreviation(), true);
-    List<Algorithm>
-      actualAlgorithms =
-      (List<Algorithm>) HibernateUtil.queryCriteria(Algorithm.class, onlyFdAlgorithms, onlyUccAlgorithms);
+    HibernateUtil.PropertyFilter onlyFdAlgorithms =
+        HibernateUtil.eq(AlgorithmType.FD.getAbbreviation(), true);
+    HibernateUtil.PropertyFilter onlyUccAlgorithms =
+        HibernateUtil.eq(AlgorithmType.UCC.getAbbreviation(), true);
+    List<Algorithm> actualAlgorithms = (List<Algorithm>) HibernateUtil
+        .queryCriteria(Algorithm.class, onlyFdAlgorithms, onlyUccAlgorithms);
 
     // Check result
     assertThat(actualAlgorithms,
-      IsIterableContainingInAnyOrder.containsInAnyOrder(expectedAlgorithm));
+        IsIterableContainingInAnyOrder.containsInAnyOrder(expectedAlgorithm));
 
     // Cleanup
     HibernateUtil.clear();
   }
 
   /**
-   * Test method for {@link de.metanome.backend.results_db.HibernateUtil#queryCriteria(Class,
-   * org.hibernate.criterion.Criterion...)} <p/> When a class is queried that is missing the {@link
-   * javax.persistence.Entity} annotation an {@link de.metanome.backend.results_db.EntityStorageException}
-   * should be thrown.
+   * Test method for
+   * {@link de.metanome.backend.results_db.HibernateUtil#queryCriteria(Class, de.metanome.backend.results_db.HibernateUtil.PropertyFilter...)}
+   * <p/>
+   * When a class is queried that is missing the {@link jakarta.persistence.Entity} annotation an
+   * {@link de.metanome.backend.results_db.EntityStorageException} should be thrown.
    */
   @Test
   public void testQueryCriteriaNonPersistentClass() {
@@ -347,8 +360,10 @@ public class HibernateUtilTest {
   }
 
   /**
-   * Test method for {@link HibernateUtil#shutdown()} <p/> After shutting down the database the
-   * session factory should be closed and a new one created on the next start.
+   * Test method for {@link HibernateUtil#shutdown()}
+   * <p/>
+   * After shutting down the database the session factory should be closed and a new one created on
+   * the next start.
    */
   @Test
   public void testShutdown() {
@@ -366,8 +381,9 @@ public class HibernateUtilTest {
   }
 
   /**
-   * Test method for {@link HibernateUtil#clear()} <p/> After clear the previously written entites
-   * should no longer be present.
+   * Test method for {@link HibernateUtil#clear()}
+   * <p/>
+   * After clear the previously written entites should no longer be present.
    */
   @Test
   public void testClear() throws EntityStorageException {
@@ -382,9 +398,8 @@ public class HibernateUtilTest {
     HibernateUtil.clear();
 
     // Check result
-    Algorithm
-      actualAlgorithm =
-      (Algorithm) HibernateUtil.retrieve(Algorithm.class, expectedAlgorithmId);
+    Algorithm actualAlgorithm =
+        (Algorithm) HibernateUtil.retrieve(Algorithm.class, expectedAlgorithmId);
     assertNull(actualAlgorithm);
 
     // Cleanup
