@@ -12,8 +12,8 @@ The Metanome platform itself is a backend service that communicates over an HTTP
 
 Metanome is a java maven project. So in order to build the sources, the following development tools are needed:
 
-1. Java JDK 11
-2. Maven 3.1.0
+1. Java JDK 21
+2. Maven 3.2.0
 2. Git
 
 Make sure that all three are on your system's PATH variable when running the build.
@@ -33,6 +33,7 @@ Build the React frontend for production before packaging the deployment bundle:
 cd frontend-react
 npm ci
 npm run build
+cd ..
 ```
 
 When the built has finished, Metanome can be packaged together with a Tomcat webserver, some test data, and some test algorithms.
@@ -51,7 +52,7 @@ To start the Metanome application you then have to execute the following steps i
 
 1. Unzip `deployment/target/deployment-1.1-SNAPSHOT-package_with_tomcat.zip`
 2. Go into the unzipped folder and start the run script, either `run.sh` or `run.bat`(Windows Systems)
-3. Open a browser at [http://localhost:8080/](http://localhost:8080/)
+3. Open a browser at [http://localhost:5173/](http://localhost:5173/)
 
 #### Downloads
 All Metanome releases can be found on the [Metanome releases page](https://github.com/HPI-Information-Systems/Metanome/releases).
