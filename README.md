@@ -7,7 +7,13 @@ The [Metanome project](https://hpi.de/naumann/projects/data-profiling-and-analyt
 
 The Metanome tool is supplied under Apache License. You can use and extend the tool to develop your own profiling algorithms. The profiling algorithms, which we provide on our [Algorithm releases page](https://hpi.de/naumann/projects/data-profiling-and-analytics/metanome-data-profiling/algorithms.html) and the [metanome-algorithms](https://github.com/HPI-Information-Systems/metanome-algorithms) repository, have Apache copyright as well.
 
-The Metanome platform itself is a backend service that communicates over an HTTP REST API with a user facing web frontend. This frontend is provided in the frontend-react folder.
+The Metanome platform itself is a backend service that communicates over an HTTP REST API with a user facing web frontend. This frontend is provided in the frontend-react folder as a submodule. Therefore make sure to have the submodule initialised and cloned by entering  the following:
+
+```bash
+git submodule update --init --recursive
+
+```
+
 #### Building Metanome Locally
 
 Metanome is a java maven project. So in order to build the sources, the following development tools are needed:
@@ -18,14 +24,20 @@ Metanome is a java maven project. So in order to build the sources, the followin
 
 Make sure that all three are on your system's PATH variable when running the build.
 
-Note: The build is configured for Java 11.
+Note: The build is configured for Java 21.
 
 
 ##### Build Metanome
 
 Metanome can be build by executing:
+```bash
+mvn clean install
+``` 
+or for a parallel build 
 
-```mvn clean install``` (or for a parallel build ```mvn -T 1C clean install```)
+```bash
+mvn -T 1C clean install
+```
 
 Build the React frontend for production before packaging the deployment bundle:
 
@@ -40,11 +52,14 @@ When the built has finished, Metanome can be packaged together with a Tomcat web
 To speedup builds this package is not created in the default maven profile.
 The deployment package can be created by executing the build with the deployment-local profile:
 
-```mvn verify -P deployment-local```
+```bash
+```mvn verify -P deployment-local
+```
 
 or by executing package on the deployment project directly:
-
-```mvn -f deployment/pom.xml package```
+```bash
+mvn -f deployment/pom.xml package
+```
 
 Note that if metanome has not been installed before creating the package (via mvn clean install), dependencies will be retrieved online, which can result in a deprecated package!
 
