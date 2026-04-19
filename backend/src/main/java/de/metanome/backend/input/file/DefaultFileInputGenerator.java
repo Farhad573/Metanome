@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -189,10 +190,25 @@ public class DefaultFileInputGenerator implements FileInputGenerator {
       return null;
     }
 
-    Path expressionPath = Paths.get(pathExpression);
-    Path parent = expressionPath.getParent();
-    String pattern = expressionPath.getFileName() != null ? expressionPath.getFileName().toString() : null;
-    if (parent == null || pattern == null || !Files.isDirectory(parent)) {
+    int lastSeparatorIndex = Math.max(pathExpression.lastIndexOf('/'), pathExpression.lastIndexOf('\\'));
+    if (lastSeparatorIndex < 0 || lastSeparatorIndex >= pathExpression.length() - 1) {
+      return null;
+    }
+
+    String parentExpression = pathExpression.substring(0, lastSeparatorIndex);
+    String pattern = pathExpression.substring(lastSeparatorIndex + 1);
+    if (pattern.trim().isEmpty()) {
+      return null;
+    }
+
+    Path parent;
+    try {
+      parent = Paths.get(parentExpression);
+    } catch (InvalidPathException e) {
+      return null;
+    }
+
+    if (!Files.isDirectory(parent)) {
       return null;
     }
 
